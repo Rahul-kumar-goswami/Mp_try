@@ -1,0 +1,222 @@
+.site-footer {
+  background: var(--primary); /* Strong blue background */
+  color: #f0f4ff; /* Very light text for contrast */
+  padding: 3rem 0 1rem 0;
+  font-family: var(--body-font);
+  border-top: 1px solid var(--accent);
+  margin-top: 3rem;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.site-footer .footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 2rem;
+}
+
+.footer-brand {
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+.footer-logo {
+  width: 48px;
+  height: 48px;
+  vertical-align: middle;
+  margin-right: 10px;
+  border-radius: 50%;
+}
+.footer-site-name {
+  font-family: var(--heading-font);
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  vertical-align: middle;
+}
+.footer-tagline {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  opacity: 0.8;
+  color: #d0e2ff; /* lighter tagline color */
+}
+
+.footer-links,
+.footer-contact,
+.footer-social,
+.footer-newsletter {
+  flex: 1 1 170px;
+  min-width: 160px;
+}
+
+.footer-links h4,
+.footer-contact h4,
+.footer-social h4,
+.footer-newsletter h4 {
+  font-family: var(--heading-font);
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+  color: #a8c1ff; /* lighter accent for headings */
+  letter-spacing: 1px;
+}
+
+.footer-links ul,
+.footer-contact ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-links li,
+.footer-contact li {
+  margin-bottom: 0.5rem;
+}
+.footer-links a,
+.footer-contact a {
+  color: #f0f4ff; /* light link color */
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover,
+.footer-contact a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.footer-social .social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.footer-social a {
+  color: #f0f4ff;
+  font-size: 1.5rem;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+}
+.footer-social a:hover {
+  color: var(--accent);
+}
+
+/* Newsletter styles (optional) */
+.footer-newsletter form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.footer-newsletter input[type="email"] {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  outline: none;
+  font-size: 1rem;
+  background-color: transparent;
+  color: #f0f4ff;
+}
+.footer-newsletter input[type="email"]::placeholder {
+  color: #a8c1ff;
+}
+.footer-newsletter button {
+  background: var(--btn-bg);
+  color: var(--btn-text, #fff);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.footer-newsletter button:hover {
+  background: var(--btn-hover);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+  color: #c0d1ff;
+  opacity: 0.85;
+  border-top: 1px solid var(--accent);
+  padding-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .site-footer .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding: 0 1rem;
+  }
+  .footer-brand,
+  .footer-links,
+  .footer-contact,
+  .footer-social,
+  .footer-newsletter {
+    min-width: 0;
+    width: 100%;
+  }
+  .footer-social .social-icons {
+    justify-content: flex-start;
+  }
+}
+
+/* Dark mode overrides */
+body.darkmode .site-footer {
+  background: var(--secondary);
+  color: var(--text-color);
+  border-top: 1px solid var(--border);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.darkmode .site-footer a,
+body.darkmode .site-footer ul,
+body.darkmode .site-footer li {
+  color: var(--text-color);
+}
+
+body.darkmode .site-footer a:hover,
+body.darkmode .site-footer a:focus {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+body.darkmode .site-footer h4 {
+  color: var(--accent);
+}
+
+body.darkmode .footer-tagline {
+  color: var(--accent);
+}
+
+body.darkmode .footer-bottom {
+  color: var(--text-color);
+  opacity: 0.7;
+  border-top: 1px solid var(--border);
+}
+
+body.darkmode .footer-social a {
+  color: var(--text-color);
+}
+body.darkmode .footer-social a:hover {
+  color: var(--accent);
+}
+
+/* Dark mode support: logo switching */
+.light-mode {
+  display: inline;
+}
+.dark-mode {
+  display: none;
+}
+body.darkmode .light-mode {
+  display: none;
+}
+body.darkmode .dark-mode {
+  display: inline;
+}

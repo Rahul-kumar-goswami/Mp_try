@@ -1,0 +1,214 @@
+/* Import fonts at the top of global.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter&family=Montserrat:wght@600;700&display=swap");
+
+/* Root Variables for Colors and Fonts */
+:root {
+  /* Colors */
+  --background: #f9fafb;
+  --primary: #2563eb;
+  --secondary: #e5e7eb;
+  --text-color: #111827;
+  --accent: #3b82f6;
+  --success: #10b981;
+  --error: #ef4444;
+  --icon-color: rgb(130, 161, 255);
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --highlight: #d97706;
+  --border: #e2e8f0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --hover: #2563eb;
+  --disabled: #d1d5db;
+  --link: #2563eb;
+  --btn-bg: #2563eb;
+  --btn-hover: #1d4ed8;
+
+  /* Fonts */
+  --body-font: "Inter", sans-serif;
+  --heading-font: "Montserrat", sans-serif;
+  --accent-font: "Montserrat", sans-serif;
+}
+
+.darkmode {
+  --background: #0f172a;
+  --primary: #1e293b;
+  --secondary: #334155;
+  --text-color: #f1f5f9;
+  --accent: #38bdf8;
+  --success: #22c55e;
+  --error: #f87171;
+  --icon-color: rgb(238, 242, 255);
+  --warning: #f59e0b;
+  --info: #38bdf8;
+  --highlight: #d97706;
+  --border: #475569;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --hover: #38bdf8;
+  --disabled: #4b5563;
+  --link: #38bdf8;
+  --btn-bg: #38bdf8;
+  --btn-hover: #0ea5e9;
+
+  /* Fonts remain the same */
+  --body-font: "Inter", sans-serif;
+  --heading-font: "Montserrat", sans-serif;
+  --accent-font: "Montserrat", sans-serif;
+}
+
+/* Apply fonts globally */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--body-font);
+}
+
+/* Headings use heading font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* Accent font usage example */
+.accent-text,
+.headline,
+.btn,
+.cta-buttons a {
+  font-family: var(--accent-font);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Links */
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--hover);
+  text-decoration: underline;
+}
+
+/* Buttons */
+button,
+.btn {
+  background-color: var(--btn-bg);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75em 1.5em;
+  font-family: var(--accent-font);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--btn-hover);
+}
+
+.floating-hamburger {
+  display: block;
+  pointer-events: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-color);
+  background-color: var(--secondary);
+  padding: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 250px;
+  height: 100vh;
+  background-color: var(--background);
+  box-shadow: -2px 0 10px var(--shadow);
+  padding-top: 20px;
+  transition: right 0.3s ease;
+  z-index: 2000;
+}
+
+.mobile-nav.active {
+  right: 0;
+  background-color: var(--background);
+  box-shadow: -2px 0 10px var(--shadow);
+}
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mobile-nav a {
+  display: block;
+  padding: 15px 25px;
+  color: var(--text-color);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav a:hover {
+  background-color: var(--hover);
+  color: #ffffff;
+}
+
+.floating-hamburger {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-color);
+  background-color: var(--secondary);
+  padding: 10px;
+  border-radius: 50%;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-hamburger.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.content {
+  padding: 150px 50px;
+  height: 200vh;
+  background-color: var(--background);
+  color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 15px 20px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .mobile-nav {
+    display: block;
+  }
+}
