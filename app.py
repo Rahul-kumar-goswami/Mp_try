@@ -108,6 +108,9 @@ def about():
 @app.route('/services')
 def services():
     return render_template("Services.html",parmas=parmas)
+@app.route('/editor')
+def editor():
+    return render_template("Editor.html",parmas=parmas)
 @app.route('/team')
 def team():
     return render_template("Team.html",parmas=parmas)

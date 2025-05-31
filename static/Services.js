@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 1,
       name: "Academic Excellence",
       category: "academic",
-      image: "/Media/templates/academic-1.jpg",
+      image: "/Templates/template-1/thumbnail.png",
     },
     {
       id: 2,
@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const categoryTabs = document.querySelectorAll(".tab-btn");
   const categoryCards = document.querySelectorAll(".category-card");
   const searchInput = document.getElementById("template-search");
-  const viewButtons = document.querySelectorAll(".view-btn");
+  // const viewButtons = document.querySelectorAll(".view-btn");
 
   // Initial render of all templates
   renderTemplates("all");
@@ -378,9 +378,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const templateId = card.dataset.id;
         addToRecentTemplates(templateId);
 
-        // Here you would typically redirect to template editor
-        alert(`Template ${templateId} selected! Redirecting to editor...`);
-        // window.location.href = `/HTML/Editor.html?template=${templateId}`;
+        // Redirect to editor with template ID in URL query param
+        window.location.href = `/editor?template=${templateId}`;
       });
     });
   }
@@ -489,16 +488,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initialize recent templates section
-  updateRecentTemplates();
+  // updateRecentTemplates();
 
   // Initialize start design button
-  document.querySelector(".start-btn").addEventListener("click", () => {
-    alert("Starting a new design! Redirecting to editor...");
-    // window.location.href = '/HTML/Editor.html';
-  });
+  // document.querySelector(".start-btn").addEventListener("click", () => {
+  //   alert("Starting a new design! Redirecting to editor...");
+  //   // window.location.href = '/HTML/Editor.html';
+  // });
 
-  document.querySelector(".create-btn").addEventListener("click", () => {
-    alert("Creating a new design! Redirecting to editor...");
-    // window.location.href = '/HTML/Editor.html';
-  });
+  // document.querySelector(".create-btn").addEventListener("click", () => {
+  //   alert("Creating a new design! Redirecting to editor...");
+  //   // window.location.href = '/HTML/Editor.html';
+  // });
 });
