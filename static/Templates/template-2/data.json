@@ -1,0 +1,22 @@
+{
+  "objects": [
+    {
+      "type": "textbox",
+      "text": "John Doe",
+      "left": 100,
+      "top": 150,
+      "fontSize": 30,
+      "fill": "#000000",
+      "fontFamily": "Arial"
+    },
+    {
+      "type": "textbox",
+      "text": "Certificate of Achievement",
+      "left": 100,
+      "top": 50,
+      "fontSize": 40,
+      "fill": "#333333",
+      "fontFamily": "Georgia"
+    }
+  ]
+}
