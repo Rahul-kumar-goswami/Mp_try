@@ -1,3 +1,5 @@
+<!-- Rahul bhadwa hai -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -13,6 +15,7 @@
     <link rel="stylesheet" href="/static/Navbar.css" />
     <link rel="stylesheet" href="/static/Footer.css" />
   </head>
+
   <body class="">
     <nav class="navbar">
       <div class="navbar-left">
@@ -167,22 +170,25 @@
           smooth and effortless as possible for everyone, everywhere, every
           time.
         </p>
-
         <div class="stats">
           <div class="stat">
-            <div class="stat-number" data-target="98">0</div>
+            <div class="stat-number" data-target="{{ stats.templates }}">0</div>
             <div class="stat-label">Existing Templates</div>
           </div>
           <div class="stat">
-            <div class="stat-number" data-target="236">0</div>
+            <div class="stat-number" data-target="{{ stats.certificates }}">
+              0
+            </div>
             <div class="stat-label">Certificates Generated</div>
           </div>
           <div class="stat">
-            <div class="stat-number" data-target="100">0</div>
+            <div class="stat-number" data-target="{{ stats.subscribers }}">
+              0
+            </div>
             <div class="stat-label">Subscribed Users</div>
           </div>
           <div class="stat">
-            <div class="stat-number" data-target="67">0</div>
+            <div class="stat-number" data-target="{{ stats.clients }}">0</div>
             <div class="stat-label">Happy Clients</div>
           </div>
         </div>

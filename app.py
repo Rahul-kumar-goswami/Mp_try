@@ -102,12 +102,29 @@ def verify_otp():
 @app.route('/home')
 def home():
     return render_template("Home.html",parmas=parmas)
+# @app.route('/about')
+# def about():
+#     return render_template("About.html",parmas=parmas)
+class About(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    templates = db.Column(db.Integer)
+    certificates = db.Column(db.Integer)
+    subscribers = db.Column(db.Integer)
+    clients = db.Column(db.Integer)
+
 @app.route('/about')
 def about():
-    return render_template("About.html",parmas=parmas)
+    stats = About.query.first()  # ek hi row se values le rahe hain
+    return render_template("About.html", stats=stats)
+
+
+
 @app.route('/services')
 def services():
     return render_template("Services.html",parmas=parmas)
+@app.route('/editor')
+def editor():
+    return render_template("Editor.html",parmas=parmas)
 @app.route('/team')
 def team():
     return render_template("Team.html",parmas=parmas)
