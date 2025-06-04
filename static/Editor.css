@@ -24,23 +24,6 @@
   gap: 1rem;
 }
 
-.back-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.back-btn a {
-  text-decoration: none;
-}
-.back-btn:hover {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-}
-
 .editor-title {
   color: #fff;
   font-weight: 500;

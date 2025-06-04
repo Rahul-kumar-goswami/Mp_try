@@ -1,3 +1,28 @@
+const body = document.body;
+if (localStorage.getItem("darkMode") === "true") {
+  body.classList.add("darkmode");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const hamburger = document.querySelector(".floating-hamburger");
+  const mobileNav = document.querySelector(".mobile-nav");
+
+  hamburger.addEventListener("click", function () {
+    mobileNav.classList.toggle("active");
+  });
+
+  // Optional: close menu when clicking outside
+  document.addEventListener("click", function (e) {
+    if (
+      !mobileNav.contains(e.target) &&
+      !hamburger.contains(e.target) &&
+      mobileNav.classList.contains("active")
+    ) {
+      mobileNav.classList.remove("active");
+    }
+  });
+});
+
 document.addEventListener("DOMContentLoaded", function () {
   // Certificate templates data
   const templates = [
@@ -307,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const categoryTabs = document.querySelectorAll(".tab-btn");
   const categoryCards = document.querySelectorAll(".category-card");
   const searchInput = document.getElementById("template-search");
-  // const viewButtons = document.querySelectorAll(".view-btn");
+  const viewButtons = document.querySelectorAll(".view-btn");
 
   // Initial render of all templates
   renderTemplates("all");

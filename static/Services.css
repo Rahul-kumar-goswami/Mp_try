@@ -7,44 +7,18 @@
 }
 
 .topbar {
+  height: 70px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
   gap: 16px;
   margin: 0;
   padding-top: 24px;
 }
 
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: var(--background);
-  color: var(--accent);
-  border: 1.5px solid var(--accent);
-  border-radius: 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 2px 8px var(--shadow);
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
-  z-index: 10;
-  white-space: nowrap;
-}
-
-.back-btn:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-.back-btn svg {
-  display: block;
-  color: inherit;
-}
-
 .search-box {
-  flex: 1 1 0;
+  flex: 1;
   display: flex;
   align-items: center;
   background-color: var(--background);
@@ -52,7 +26,13 @@
   border-radius: 24px;
   padding: 8px 16px;
   box-shadow: 0 2px 5px var(--shadow);
-  min-width: 0; /* Prevents overflow */
+  min-width: 0; /* Pr events overflow */
+}
+
+.floating-hamburger {
+  position: static;
+  pointer-events: all;
+  display: flex;
 }
 
 @media (max-width: 600px) {
@@ -101,6 +81,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  right: 20px;
 }
 
 .create-btn:hover {

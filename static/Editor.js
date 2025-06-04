@@ -1,3 +1,7 @@
+const body = document.body;
+if (localStorage.getItem("darkMode") === "true") {
+  body.classList.add("darkmode");
+}
 // ====== Canvas Initialization ======
 const canvas = new fabric.Canvas("certificate-canvas", {
   width: 900,
