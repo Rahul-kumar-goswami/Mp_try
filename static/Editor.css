@@ -57,6 +57,7 @@
   transform: translateX(-50%);
   z-index: 100;
 }
+
 #shape-border-color,
 #shape-border-radius {
   padding: 4px 8px;
@@ -205,6 +206,9 @@
 
 .panel-content {
   padding: 1rem;
+  width: 100%;
+  overflow: auto;
+
 }
 
 .panel-content h3 {
@@ -259,6 +263,7 @@
   min-height: 40px;
   position: relative;
 }
+
 .element-item[data-shape="rect"]::after {
   content: "";
   display: block;
@@ -268,6 +273,7 @@
   border-radius: 2px;
   margin: auto;
 }
+
 .element-item[data-shape="circle"]::after {
   content: "";
   display: block;
@@ -277,6 +283,7 @@
   border-radius: 50%;
   margin: auto;
 }
+
 .element-item[data-shape="triangle"]::after {
   content: "";
   display: block;
@@ -287,6 +294,7 @@
   border-bottom: 24px solid var(--accent);
   margin: auto;
 }
+
 .element-item[data-shape="line"]::after {
   content: "";
   display: block;
@@ -296,24 +304,23 @@
   border-radius: 2px;
   margin: auto;
 }
+
 .element-item[data-shape="star"]::after {
   content: "";
   display: block;
   width: 24px;
   height: 24px;
   background: var(--accent);
-  clip-path: polygon(
-    50% 0%,
-    61% 35%,
-    98% 35%,
-    68% 57%,
-    79% 91%,
-    50% 70%,
-    21% 91%,
-    32% 57%,
-    2% 35%,
-    39% 35%
-  );
+  clip-path: polygon(50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%);
   margin: auto;
 }
 
@@ -374,10 +381,12 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
+
 .bg-color-swatch:hover {
   outline: 2px solid #2980b9;
   transform: scale(1.1);
@@ -389,7 +398,8 @@
   color: var(--text-color);
   font-family: var(--body-font);
   border-radius: 0.5rem;
-  overflow-y: auto; /* Scroll if too many layers */
+  overflow-y: auto;
+  /* Scroll if too many layers */
   user-select: none;
 }
 
@@ -487,6 +497,7 @@
 #text-formatting {
   display: flex;
 }
+
 .canvas-controls {
   position: absolute;
   bottom: 1px;
@@ -531,6 +542,7 @@
   .editor-main {
     flex-direction: column;
   }
+
   .editor-sidebar {
     flex-direction: row;
     width: 100%;
@@ -540,17 +552,30 @@
     padding: 0 10px;
     justify-content: center;
   }
+
   .content-panel {
     width: 100%;
     max-height: 250px;
+    /* width: 100%; */
+    overflow: auto;
+
   }
+
   .formatting-toolbar {
     top: auto;
     left: auto;
     transform: none;
-    width: 100%;
+    width: 400%;
     justify-content: flex-start;
     margin-top: 8px;
     position: relative;
   }
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  max-width: 100%;
+  width: 100%;
 }

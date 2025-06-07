@@ -1254,4 +1254,41 @@ function init() {
   // setupDownloadAndSave();
   setupTitleEditable();
 }
-init();
+document.addEventListener("DOMContentLoaded", function () {
+  const canvas = new fabric.Canvas("certificate-canvas", {
+    preserveObjectStacking: true,
+    selection: true,
+  });
+
+  canvas.setWidth(900);  // adjust as needed
+  canvas.setHeight(600); // adjust as needed
+
+  // Load background from Flask
+  const bgUrl = document.getElementById("bg-image")?.src;
+  if (bgUrl) {
+    fabric.Image.fromURL(bgUrl, function (img) {
+      canvas.setBackgroundImage(
+        img,
+        canvas.renderAll.bind(canvas),
+        {
+          scaleX: canvas.width / img.width,
+          scaleY: canvas.height / img.height,
+        }
+      );
+    });
+  }
+
+  // Load JSON design from Flask
+  const jsonElement = document.getElementById("json-data-holder");
+  if (jsonElement) {
+    const jsonData = JSON.parse(jsonElement.textContent);
+    canvas.loadFromJSON(jsonData, () => {
+      canvas.renderAll();
+      console.log("Template JSON loaded.");
+    });
+  }
+
+  window.canvas = canvas; // expose for console/debug
+});
+
+

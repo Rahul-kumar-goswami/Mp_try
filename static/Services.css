@@ -389,3 +389,33 @@
     padding-bottom: 12px;
   }
 }
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.template-card {
+  text-decoration: none;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  transition: transform 0.3s;
+}
+
+.template-card:hover {
+  transform: scale(1.03);
+}
+
+.template-card img {
+  width: 100%;
+  height: auto;
+}
+
+.template-info {
+  padding: 10px;
+  text-align: center;
+}
+

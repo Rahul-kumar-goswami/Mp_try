@@ -1,0 +1,14 @@
+{
+  "version": "5.3.1",
+  "objects": [
+    {
+      "type": "text",
+      "left": 200,
+      "top": 100,
+      "text": "Hello Certi-Gen!",
+      "fontSize": 40,
+      "fill": "#000"
+    }
+  ]
+}
+
