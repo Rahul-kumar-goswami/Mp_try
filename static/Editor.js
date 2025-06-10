@@ -2,13 +2,7 @@ const body = document.body;
 if (localStorage.getItem("darkMode") === "true") {
   body.classList.add("darkmode");
 }
-// ====== Canvas Initialization ======
-const canvas = new fabric.Canvas("certificate-canvas", {
-  width: 900,
-  height: 650,
-  backgroundColor: "#ffffff",
-  preserveObjectStacking: true,
-});
+
 
 // ====== Load Template from URL ======
 window.addEventListener("DOMContentLoaded", () => {
@@ -90,21 +84,7 @@ function loadTemplateToCanvas(template) {
 // ====== The rest of your Editor.js code remains unchanged ======
 // (Keep all your existing sidebar, text, shapes, formatting, download, etc. logic)
 
-// ====== Template Data & Loading ======
-const certificateTemplates = [
-  {
-    id: 1,
-    name: "Academic",
-    thumbnail: "/Media/academic-thumb.jpg",
-    background: "/Media/featured-cert-1.jpg",
-  },
-  {
-    id: 2,
-    name: "Professional",
-    thumbnail: "/Media/professional-thumb.jpg",
-    background: "/Media/featured-cert-2.jpg",
-  },
-];
+
 
 function loadTemplates() {
   const templateGrid = document.querySelector(".template-grid");
@@ -1254,16 +1234,7 @@ function init() {
   // setupDownloadAndSave();
   setupTitleEditable();
 }
-document.addEventListener("DOMContentLoaded", function () {
-  const canvas = new fabric.Canvas("certificate-canvas", {
-    preserveObjectStacking: true,
-    selection: true,
-  });
-
-  canvas.setWidth(900);  // adjust as needed
-  canvas.setHeight(600); // adjust as needed
-
-  // Load background from Flask
+window.addEventListener("DOMContentLoaded", () => {
   const bgUrl = document.getElementById("bg-image")?.src;
   if (bgUrl) {
     fabric.Image.fromURL(bgUrl, function (img) {
@@ -1278,7 +1249,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Load JSON design from Flask
   const jsonElement = document.getElementById("json-data-holder");
   if (jsonElement) {
     const jsonData = JSON.parse(jsonElement.textContent);
@@ -1288,7 +1258,133 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  window.canvas = canvas; // expose for console/debug
 });
 
+// Load on initial page load(Editor.html should define initialTemplateId)
+if (typeof initialTemplateId !== "undefined" && initialTemplateId !== null) {
+  loadTemplate(initialTemplateId);
+}
 
+// Load template by ID from / api / template / <id>
+function loadTemplate(templateId) {
+  console.log("Loading template ID:", templateId);
+
+  fetch(`/api/template/${templateId}`)
+    .then(res => res.json())
+    .then(data => {
+      canvas.clear(); // Clear existing canvas
+
+      // ✅ Load background image
+      if (data.background) {
+        fabric.Image.fromURL(`/static/${data.background}`, function (img) {
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+            scaleX: canvas.width / img.width,
+            scaleY: canvas.height / img.height
+          });
+        });
+      }
+
+      // ✅ Load JSON design with editable patch
+      if (data.json_data) {
+        try {
+          const json = typeof data.json_data === "string"
+            ? JSON.parse(data.json_data)
+            : data.json_data;
+
+          canvas.loadFromJSON(json, () => {
+            canvas.getObjects().forEach(obj => {
+              if (obj.type === 'textbox' || obj.type === 'i-text') {
+                obj.set({
+                  selectable: true,
+                  editable: true,
+                  hasControls: true,
+                  lockMovementX: false,
+                  lockMovementY: false
+                });
+              }
+            });
+            canvas.renderAll();
+          });
+
+        } catch (err) {
+          console.error("Invalid JSON data:", err);
+        }
+      }
+    })
+    .catch(err => {
+      console.error("Error loading template:", err);
+    });
+}
+
+
+// Optional: Add text button support
+function addText() {
+  const textbox = new fabric.Textbox("Your Text", {
+    left: 100,
+    top: 100,
+    fontSize: 28,
+    fill: "#000",
+    editable: true
+  });
+  canvas.add(textbox);
+  canvas.setActiveObject(textbox);
+}
+
+// Optional: Enable editing features
+canvas.on('object:selected', function (e) {
+  if (e.target && e.target.type === 'textbox') {
+    console.log("Text selected:", e.target.text);
+  }
+});
+
+function loadTemplate(templateId) {
+  fetch(`/api/template/${templateId}`)
+    .then(res => res.json())
+    .then(data => {
+      canvas.clear();
+      if (data.background) {
+        fabric.Image.fromURL(`/static/${data.background}`, function (img) {
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+            scaleX: canvas.width / img.width,
+            scaleY: canvas.height / img.height
+          });
+        });
+      }
+
+      if (data.json_data) {
+        const json = typeof data.json_data === "string"
+          ? JSON.parse(data.json_data)
+          : data.json_data;
+        canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+      }
+    })
+    .catch(err => {
+      console.error("Failed to load template", err);
+    });
+}
+
+// Load on DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof initialTemplateId !== "undefined" && initialTemplateId !== null) {
+    loadTemplate(initialTemplateId);
+  }
+
+  // Setup basic tool example: add heading
+  document.getElementById("add-heading")?.addEventListener("click", () => {
+    const textbox = new fabric.Textbox("Add Heading", {
+      left: 100,
+      top: 100,
+      fontSize: 32,
+      fontWeight: 'bold',
+      fill: "#111827",
+      fontFamily: "Arial"
+    });
+    canvas.add(textbox);
+    canvas.setActiveObject(textbox);
+    canvas.renderAll();
+  });
+
+  // Add more tool setups here as needed (shapes, uploads, etc.)
+});
+
+// newnmASvjhmasgv

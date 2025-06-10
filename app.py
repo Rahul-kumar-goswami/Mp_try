@@ -198,17 +198,6 @@ def editor_1():
     templates = Templates.query.all()  # ya jahan se bhi aa rahe ho
     return render_template('Editor.html', templates=templates)
 
-
-# @app.route("/editor/<int:id>")
-# def editor(id):
-#     template = Templates.query.get_or_404(id)
-#     return render_template("Editor.html", template=template, parmas=parmas)
-@app.route('/editor/<int:id>')
-def editor(id):
-    template = Templates.query.get_or_404(id)
-    all_templates = Templates.query.all()
-    return render_template("editor.html", template=template, templates=all_templates)
-
 @app.route("/all_templates")
 def all_templates():
     templates = Templates.query.all()
@@ -260,6 +249,11 @@ def get_template(id):
         "json_data": template.json_data
     }
 
+@app.route('/editor/<int:id>')
+def editor(id):
+    template = Templates.query.get_or_404(id)
+    all_templates = Templates.query.all()
+    return render_template("Editor.html", template=template, templates=all_templates)
 
 
 # ------------------ Main ------------------

@@ -116,7 +116,7 @@
 
       <div class="template-grid">
         {% for temp in templates %}
-        <a href="{{ url_for('editor', id=temp.id) }}" class="template-card" data-category="{{ temp.category }}">
+        <a href="/editor/{{ temp.id }}" class="template-card" data-category="{{ temp.category }}">
           <img src="/static/{{ temp.thumbnail }}" alt="{{ temp.name }}" />
           <div class="template-info">
             <h3>{{ temp.name }}</h3>

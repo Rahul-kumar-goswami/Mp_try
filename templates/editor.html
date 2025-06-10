@@ -2,87 +2,88 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Certificate Editor | Certi-Gen</title>
-  <link rel="stylesheet" href="/static/Global.css" />
-  <link rel="stylesheet" href="/static/Editor.css" />
-  <!-- jsPDF CDN (from official source) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Certificate Editor | Certi-Gen</title>
+    <link rel="stylesheet" href="/static/Global.css" />
+    <link rel="stylesheet" href="/static/Editor.css" />
+    <!-- jsPDF CDN (from official source) -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 </head>
 
 <body>
-  <div class="editor-container">
-    <!-- Top Bar -->
-    <div class="editor-topbar">
-      <div class="left-actions">
-        <a href="/services" class="back-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </a>
-        <div class="editor-title" contenteditable="true" spellcheck="false" id="editorTitle">
-          Untitled design
-        </div>
-      </div>
-      <div id="formatting-toolbar" class="formatting-toolbar" style="display: none">
-        <!-- Text formatting controls -->
-        <div id="text-formatting" style="display: none">
-          <select id="font-family">
-            <option value="Inter">Inter</option>
-            <option value="Montserrat">Montserrat</option>
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Poppins">Poppins</option>
-          </select>
-          <button id="decrease-font" class="format-btn">-</button>
-          <input type="number" id="font-size" min="8" max="200" value="32" style="width: 50px" />
-          <button id="increase-font" class="format-btn">+</button>
-          <button id="bold-btn" class="format-btn"><b>B</b></button>
-          <button id="italic-btn" class="format-btn"><i>I</i></button>
-          <button id="underline-btn" class="format-btn"><u>U</u></button>
-          <input type="color" id="text-color" title="Text Color" />
-          <select id="text-case" title="Text Case" style="margin-left: 10px">
-            <option value="none">Aa</option>
-            <option value="uppercase">UPPERCASE</option>
-            <option value="lowercase">lowercase</option>
-            <option value="capitalize">Capitalized</option>
-            <option value="sentence">Sentence case</option>
-          </select>
-        </div>
-        <!-- Shape formatting controls -->
-        <div id="shape-formatting" style="display: none">
-          <input type="color" id="shape-fill-color" title="Shape Fill Color" />
-        </div>
-      </div>
+    <div class="editor-container">
+        <!-- Top Bar -->
+        <div class="editor-topbar">
+            <div class="left-actions">
+                <a href="/services" class="back-btn"></a>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                </a>
+                <div class="editor-title" contenteditable="true" spellcheck="false" id="editorTitle">
+                    Untitled design
+                </div>
+            </div>
+            <div id="formatting-toolbar" class="formatting-toolbar" style="display: none">
+                <!-- Text formatting controls -->
+                <div id="text-formatting" style="display: none">
+                    <select id="font-family">
+                        <option value="Inter">Inter</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Poppins">Poppins</option>
+                    </select>
+                    <button id="decrease-font" class="format-btn">-</button>
+                    <input type="number" id="font-size" min="8" max="200" value="32" style="width: 50px" />
+                    <button id="increase-font" class="format-btn">+</button>
+                    <button id="bold-btn" class="format-btn"><b>B</b></button>
+                    <button id="italic-btn" class="format-btn"><i>I</i></button>
+                    <button id="underline-btn" class="format-btn"><u>U</u></button>
+                    <input type="color" id="text-color" title="Text Color" />
+                    <select id="text-case" title="Text Case" style="margin-left: 10px">
+                        <option value="none">Aa</option>
+                        <option value="uppercase">UPPERCASE</option>
+                        <option value="lowercase">lowercase</option>
+                        <option value="capitalize">Capitalized</option>
+                        <option value="sentence">Sentence case</option>
+                    </select>
+                </div>
+                <!-- Shape formatting controls -->
+                <div id="shape-formatting" style="display: none">
+                    <input type="color" id="shape-fill-color" title="Shape Fill Color" />
+                </div>
+            </div>
 
-      <div class="right-actions">
-        <div id="object-actions" style="display: none">
-          <button id="copy-btn" class="editor-btn" title="Copy">Copy</button>
-          <button id="duplicate-btn" class="editor-btn" title="Duplicate">
-            Duplicate
-          </button>
-          <button id="paste-btn" class="editor-btn" title="Paste">
-            Paste
-          </button>
-          <button id="delete-btn" class="editor-btn" title="Delete">
-            Delete
-          </button>
-          <button id="lock-btn" class="editor-btn" title="Lock">Lock</button>
-          <button id="unlock-btn" class="editor-btn" title="Unlock" style="display: none">
-            Unlock
-          </button>
-        </div>
-        <button id="preview-btn">Preview</button>
-        <button id="save-btn" class="editor-btn">Save</button>
-        <button id="download-btn" class="editor-btn primary-btn">
-          Download ▼
-        </button>
+            <div class="right-actions">
+                <div id="object-actions" style="display: none">
+                    <button id="copy-btn" class="editor-btn" title="Copy">Copy</button>
+                    <button id="duplicate-btn" class="editor-btn" title="Duplicate">
+                        Duplicate
+                    </button>
+                    <button id="paste-btn" class="editor-btn" title="Paste">
+                        Paste
+                    </button>
+                    <button id="delete-btn" class="editor-btn" title="Delete">
+                        Delete
+                    </button>
+                    <button id="lock-btn" class="editor-btn" title="Lock">Lock</button>
+                    <button id="unlock-btn" class="editor-btn" title="Unlock" style="display: none">
+                        Unlock
+                    </button>
+                </div>
+                <button id="preview-btn">Preview</button>
+                <button id="save-btn" class="editor-btn">Save</button>
+                <button id="download-btn" class="editor-btn primary-btn">
+                    Download ▼
+                </button>
 
-        <div id="download-dropdown" style="
+                <div id="download-dropdown" style="
               display: none;
               position: absolute;
               border: 1px solid #ccc;
@@ -90,259 +91,267 @@
               box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
               z-index: 1000;
             ">
-          <button class="format-option" data-format="png">
-            Download as PNG</button><br />
-          <button class="format-option" data-format="pdf">
-            Download as PDF
-          </button>
-        </div>
+                    <button class="format-option" data-format="png">
+                        Download as PNG</button><br />
+                    <button class="format-option" data-format="pdf">
+                        Download as PDF
+                    </button>
+                </div>
 
-        <button id="share-btn" class="editor-btn">Share</button>
-      </div>
-    </div>
-    <div class="editor-main">
-      <!-- Sidebar -->
-      <div class="editor-sidebar">
-        <button class="sidebar-tool active" data-tool="templates">
-          <span class="tool-icon">
-            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24"
-              fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M15,13 L20,13 C21.1045695,13 22,13.8954305 22,15 L22,20 C22,21.1045695 21.1045695,22 20,22 L15,22 C13.8954305,22 13,21.1045695 13,20 L13,15 C13,13.8954305 13.8954305,13 15,13 Z M15,15 L15,20 L20,20 L20,15 L15,15 Z M11,4 L11,20 C11,21.1045695 10.1045695,22 9,22 L4,22 C2.8954305,22 2,21.1045695 2,20 L2,4 C2,2.8954305 2.8954305,2 4,2 L9,2 C10.1045695,2 11,2.8954305 11,4 Z M9,4 L4,4 L4,20 L9,20 L9,4 Z M15,2 L20,2 C21.1045695,2 22,2.8954305 22,4 L22,9 C22,10.1045695 21.1045695,11 20,11 L15,11 C13.8954305,11 13,10.1045695 13,9 L13,4 C13,2.8954305 13.8954305,2 15,2 Z M15,4 L15,9 L20,9 L20,4 L15,4 Z" />
-            </svg>
-          </span>
-          <span class="tool-label">Templates</span>
-        </button>
-        <button class="sidebar-tool" data-tool="elements">
-          <span class="tool-icon">
-            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24"
-              fill="none">
-              <path d="M8 10L12 3L16 10H8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-              <path
-                d="M10 17.5C10 19.433 8.433 21 6.5 21C4.567 21 3 19.433 3 17.5C3 15.567 4.567 14 6.5 14C8.433 14 10 15.567 10 17.5Z"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="tool-label">Elements</span>
-        </button>
-        <button class="sidebar-tool" data-tool="text">
-          <span class="tool-icon">
-            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24"
-              fill="none">
-              <path d="M8 4V20M17 12V20M6 20H10M15 20H19M13 7V4H3V7M21 14V12H13V14" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="tool-label">Text</span>
-        </button>
-        <button class="sidebar-tool" data-tool="layers">
-          <span class="tool-icon">
-            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24"
-              fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M5.00004 16.8669L4.62722 16.9413C2.73914 17.3183 0.98708 15.8303 1.00007 13.8609L1.05413 5.66559C1.06392 4.18207 2.09362 2.91119 3.51587 2.62725L11.3728 1.05866C13.2589 0.682096 15.0093 2.16667 15 4.13309L15.3728 4.05866C17.259 3.6821 19.0094 5.16666 19 7.13308L19.3728 7.05866C21.2608 6.68171 23.0129 8.16969 22.9999 10.1391L22.9459 18.3344C22.9361 19.8179 21.9064 21.0888 20.4841 21.3728L12.6272 22.9413C10.7409 23.3179 8.99026 21.833 9.00004 19.8662L8.62722 19.9413C6.74104 20.3179 4.99061 18.8333 5.00004 16.8669ZM9.01352 17.8248L9.05418 11.6656C9.06395 10.182 10.0936 8.9112 11.5159 8.62722L16.9973 7.5329L17 7.1259C17.005 6.36468 16.3525 5.90253 15.7644 6.01995L7.90743 7.58854C7.44642 7.68057 7.05783 8.112 7.05409 8.67877L7.00003 16.8741C6.99501 17.6353 7.64752 18.0975 8.23566 17.98L9.01352 17.8248ZM13 4.12595L12.9973 4.53291L7.51587 5.62724C6.09362 5.91118 5.06392 7.18207 5.05413 8.66557L5.0135 14.8248L4.23566 14.98C3.64746 15.0975 2.99501 14.6353 3.00003 13.8741L3.05409 5.67878C3.05783 5.112 3.44643 4.68058 3.90743 4.58854L11.7643 3.01995C12.3525 2.90253 13.005 3.36463 13 4.12595ZM20.9459 18.3212C20.9421 18.888 20.5535 19.3194 20.0926 19.4115L12.2357 20.98C11.6475 21.0975 10.9951 20.6353 11 19.8741L11.0541 11.6788C11.0579 11.112 11.4465 10.6806 11.9075 10.5885L19.7643 9.01995C20.3525 8.90252 21.005 9.36473 21 10.1259L20.9459 18.3212Z"
-                fill="currentColor" />
-            </svg>
-          </span>
-          <span class="tool-label">Layers</span>
-        </button>
-        <button class="sidebar-tool" data-tool="uploads">
-          <span class="tool-icon">
-            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24"
-              fill="none">
-              <path
-                d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="tool-label">Uploads</span>
-        </button>
-        <button class="sidebar-tool" data-tool="bulk-generate">
-          <span class="tool-icon"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink" width="32px" height="32px" viewBox="0 0 512 512" version="1.1">
-              <title>document-bulk-add-bold</title>
-              <g id="Page-1" stroke="currentColor" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="icon" fill="currentColor" transform="translate(85.333333, 42.666667)">
-                  <path
-                    d="M149.333333,128 L234.666667,213.333333 L234.666667,426.666667 L0,426.666667 L0,128 L149.333333,128 Z M131.648,170.666667 L42.6666667,170.666667 L42.6666667,384 L192,384 L192,231.018667 L131.648,170.666667 Z M213.333333,64 L298.666667,149.333333 L298.666667,362.666667 L256,362.666 L256,167.018667 L195.648,106.666667 L64,106.666 L64,64 L213.333333,64 Z M277.333333,0 L362.666667,85.3333333 L362.666667,298.666667 L320,298.666 L320,103.018667 L259.648,42.6666667 L128,42.666 L128,0 L277.333333,0 Z"
-                    id="Combined-Shape"></path>
-                  <g transform="translate(84, 258)">
-                    <rect x="0" y="30" width="64" height="8" fill="currentColor" />
-                    <rect x="30" y="0" width="8" height="64" fill="currentColor" />
-                  </g>
-                </g>
-              </g>
-            </svg>
-          </span>
-          <span class="tool-label">Bulk <br />Generate</span>
-        </button>
-        <button class="sidebar-tool" data-tool="background">
-          <span class="tool-icon"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"
-              viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M5.99988 16.938V19.059L5.05851 20H2.93851L5.99988 16.938ZM22.0015 14.435V16.557L18.5595 20H17.9935L17.9939 18.443L22.0015 14.435ZM8.74988 14H15.2446C16.1628 14 16.9158 14.7071 16.9888 15.6065L16.9946 15.75V20H6.99988V15.75C6.99988 14.8318 7.70699 14.0788 8.60636 14.0058L8.74988 14ZM8.02118 10.4158C8.08088 10.9945 8.26398 11.5367 8.54372 12.0154L1.99951 18.56V16.438L8.02118 10.4158ZM22.0015 9.932V12.055L17.9939 16.065L17.9946 15.75L17.9896 15.5825C17.9623 15.128 17.8246 14.7033 17.6029 14.3348L22.0015 9.932ZM12.0565 4L1.99951 14.06V11.939L9.93551 4H12.0565ZM22.0015 5.432V7.555L16.3346 13.2245C16.0672 13.1089 15.7779 13.0346 15.4746 13.0095L15.2446 13L14.6456 13.0005C14.9874 12.6989 15.2772 12.3398 15.4999 11.9384L22.0015 5.432ZM11.9999 7.00046C13.6567 7.00046 14.9999 8.34361 14.9999 10.0005C14.9999 11.6573 13.6567 13.0005 11.9999 13.0005C10.343 13.0005 8.99988 11.6573 8.99988 10.0005C8.99988 8.34361 10.343 7.00046 11.9999 7.00046ZM7.55851 4L1.99951 9.56V7.438L5.43751 4H7.55851ZM21.0565 4L15.9091 9.14895C15.7923 8.61022 15.5669 8.11194 15.2571 7.67816L18.9345 4H21.0565ZM16.5585 4L14.0148 6.54427C13.5362 6.26463 12.9942 6.08157 12.4157 6.02181L14.4365 4H16.5585Z"
-                fill="currentColor" />
-            </svg>
-          </span>
-          <span class="tool-label">BG</span>
-        </button>
-      </div>
-
-      <!-- Content Panel -->
-      <div class="content-panel">
-        <!-- Templates -->
-        <div class="panel-content" id="templates-panel">
-          <h3>Certificate Templates</h3>
-          <div class="template-grid">
-            {% if templates %}
-            {% for temp in templates %}
-            <div class="template-card" onclick="loadTemplate('{{ temp.id }}')">
-              <img src="{{ url_for('static', filename=temp.thumbnail) }}" alt="{{ temp.name }}" />
-              <p>{{ temp.name }}</p>
+                <button id="share-btn" class="editor-btn">Share</button>
             </div>
-            {% endfor %}
-            {% else %}
-            <p style="color: white;">No templates available.</p>
-            {% endif %}
-          </div>
         </div>
-      </div>
+        <div class="editor-main">
+            <!-- Sidebar -->
+            <div class="editor-sidebar">
+                <button class="sidebar-tool active" data-tool="templates">
+                    <span class="tool-icon">
+                        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M15,13 L20,13 C21.1045695,13 22,13.8954305 22,15 L22,20 C22,21.1045695 21.1045695,22 20,22 L15,22 C13.8954305,22 13,21.1045695 13,20 L13,15 C13,13.8954305 13.8954305,13 15,13 Z M15,15 L15,20 L20,20 L20,15 L15,15 Z M11,4 L11,20 C11,21.1045695 10.1045695,22 9,22 L4,22 C2.8954305,22 2,21.1045695 2,20 L2,4 C2,2.8954305 2.8954305,2 4,2 L9,2 C10.1045695,2 11,2.8954305 11,4 Z M9,4 L4,4 L4,20 L9,20 L9,4 Z M15,2 L20,2 C21.1045695,2 22,2.8954305 22,4 L22,9 C22,10.1045695 21.1045695,11 20,11 L15,11 C13.8954305,11 13,10.1045695 13,9 L13,4 C13,2.8954305 13.8954305,2 15,2 Z M15,4 L15,9 L20,9 L20,4 L15,4 Z" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">Templates</span>
+                </button>
+                <button class="sidebar-tool" data-tool="elements">
+                    <span class="tool-icon">
+                        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"
+                            viewBox="0 0 24 24" fill="none">
+                            <path d="M8 10L12 3L16 10H8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M10 17.5C10 19.433 8.433 21 6.5 21C4.567 21 3 19.433 3 17.5C3 15.567 4.567 14 6.5 14C8.433 14 10 15.567 10 17.5Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">Elements</span>
+                </button>
+                <button class="sidebar-tool" data-tool="text">
+                    <span class="tool-icon">
+                        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"
+                            viewBox="0 0 24 24" fill="none">
+                            <path d="M8 4V20M17 12V20M6 20H10M15 20H19M13 7V4H3V7M21 14V12H13V14" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">Text</span>
+                </button>
+                <button class="sidebar-tool" data-tool="layers">
+                    <span class="tool-icon">
+                        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M5.00004 16.8669L4.62722 16.9413C2.73914 17.3183 0.98708 15.8303 1.00007 13.8609L1.05413 5.66559C1.06392 4.18207 2.09362 2.91119 3.51587 2.62725L11.3728 1.05866C13.2589 0.682096 15.0093 2.16667 15 4.13309L15.3728 4.05866C17.259 3.6821 19.0094 5.16666 19 7.13308L19.3728 7.05866C21.2608 6.68171 23.0129 8.16969 22.9999 10.1391L22.9459 18.3344C22.9361 19.8179 21.9064 21.0888 20.4841 21.3728L12.6272 22.9413C10.7409 23.3179 8.99026 21.833 9.00004 19.8662L8.62722 19.9413C6.74104 20.3179 4.99061 18.8333 5.00004 16.8669ZM9.01352 17.8248L9.05418 11.6656C9.06395 10.182 10.0936 8.9112 11.5159 8.62722L16.9973 7.5329L17 7.1259C17.005 6.36468 16.3525 5.90253 15.7644 6.01995L7.90743 7.58854C7.44642 7.68057 7.05783 8.112 7.05409 8.67877L7.00003 16.8741C6.99501 17.6353 7.64752 18.0975 8.23566 17.98L9.01352 17.8248ZM13 4.12595L12.9973 4.53291L7.51587 5.62724C6.09362 5.91118 5.06392 7.18207 5.05413 8.66557L5.0135 14.8248L4.23566 14.98C3.64746 15.0975 2.99501 14.6353 3.00003 13.8741L3.05409 5.67878C3.05783 5.112 3.44643 4.68058 3.90743 4.58854L11.7643 3.01995C12.3525 2.90253 13.005 3.36463 13 4.12595ZM20.9459 18.3212C20.9421 18.888 20.5535 19.3194 20.0926 19.4115L12.2357 20.98C11.6475 21.0975 10.9951 20.6353 11 19.8741L11.0541 11.6788C11.0579 11.112 11.4465 10.6806 11.9075 10.5885L19.7643 9.01995C20.3525 8.90252 21.005 9.36473 21 10.1259L20.9459 18.3212Z"
+                                fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">Layers</span>
+                </button>
+                <button class="sidebar-tool" data-tool="uploads">
+                    <span class="tool-icon">
+                        <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px" height="32px"
+                            viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15"
+                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">Uploads</span>
+                </button>
+                <button class="sidebar-tool" data-tool="bulk-generate">
+                    <span class="tool-icon"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink" width="32px" height="32px" viewBox="0 0 512 512"
+                            version="1.1">
+                            <title>document-bulk-add-bold</title>
+                            <g id="Page-1" stroke="currentColor" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="icon" fill="currentColor" transform="translate(85.333333, 42.666667)">
+                                    <path
+                                        d="M149.333333,128 L234.666667,213.333333 L234.666667,426.666667 L0,426.666667 L0,128 L149.333333,128 Z M131.648,170.666667 L42.6666667,170.666667 L42.6666667,384 L192,384 L192,231.018667 L131.648,170.666667 Z M213.333333,64 L298.666667,149.333333 L298.666667,362.666667 L256,362.666 L256,167.018667 L195.648,106.666667 L64,106.666 L64,64 L213.333333,64 Z M277.333333,0 L362.666667,85.3333333 L362.666667,298.666667 L320,298.666 L320,103.018667 L259.648,42.6666667 L128,42.666 L128,0 L277.333333,0 Z"
+                                        id="Combined-Shape"></path>
+                                    <g transform="translate(84, 258)">
+                                        <rect x="0" y="30" width="64" height="8" fill="currentColor" />
+                                        <rect x="30" y="0" width="8" height="64" fill="currentColor" />
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </span>
+                    <span class="tool-label">Bulk <br />Generate</span>
+                </button>
+                <button class="sidebar-tool" data-tool="background">
+                    <span class="tool-icon"><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" width="32px"
+                            height="32px" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M5.99988 16.938V19.059L5.05851 20H2.93851L5.99988 16.938ZM22.0015 14.435V16.557L18.5595 20H17.9935L17.9939 18.443L22.0015 14.435ZM8.74988 14H15.2446C16.1628 14 16.9158 14.7071 16.9888 15.6065L16.9946 15.75V20H6.99988V15.75C6.99988 14.8318 7.70699 14.0788 8.60636 14.0058L8.74988 14ZM8.02118 10.4158C8.08088 10.9945 8.26398 11.5367 8.54372 12.0154L1.99951 18.56V16.438L8.02118 10.4158ZM22.0015 9.932V12.055L17.9939 16.065L17.9946 15.75L17.9896 15.5825C17.9623 15.128 17.8246 14.7033 17.6029 14.3348L22.0015 9.932ZM12.0565 4L1.99951 14.06V11.939L9.93551 4H12.0565ZM22.0015 5.432V7.555L16.3346 13.2245C16.0672 13.1089 15.7779 13.0346 15.4746 13.0095L15.2446 13L14.6456 13.0005C14.9874 12.6989 15.2772 12.3398 15.4999 11.9384L22.0015 5.432ZM11.9999 7.00046C13.6567 7.00046 14.9999 8.34361 14.9999 10.0005C14.9999 11.6573 13.6567 13.0005 11.9999 13.0005C10.343 13.0005 8.99988 11.6573 8.99988 10.0005C8.99988 8.34361 10.343 7.00046 11.9999 7.00046ZM7.55851 4L1.99951 9.56V7.438L5.43751 4H7.55851ZM21.0565 4L15.9091 9.14895C15.7923 8.61022 15.5669 8.11194 15.2571 7.67816L18.9345 4H21.0565ZM16.5585 4L14.0148 6.54427C13.5362 6.26463 12.9942 6.08157 12.4157 6.02181L14.4365 4H16.5585Z"
+                                fill="currentColor" />
+                        </svg>
+                    </span>
+                    <span class="tool-label">BG</span>
+                </button>
+            </div>
 
-      <div class="template-grid">
+            <!-- Content Panel -->
+            <div class="content-panel">
+                <!-- Templates -->
+                <div class="panel-content" id="templates-panel">
+                    <h3>Certificate Templates</h3>
+                    <div class="template-grid">
+                        <div class="template-grid">
+                            {% for temp in templates %}
+                            <div class="template-card" onclick="window.location.href='/editor/{{ temp.id }}'">
+                                <img src="{{ url_for('static', filename=temp.thumbnail) }}" alt="{{ temp.name }}">
+                                <p>{{ temp.name }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
 
-        <!-- Elements -->
-        <div class="panel-content" id="elements-panel" style="display: none">
-          <h3>Shapes & Graphics</h3>
-          <div class="elements-grid">
-            <button class="element-item" data-shape="rect" title="Rectangle"></button>
-            <button class="element-item" data-shape="circle" title="Circle"></button>
-            <button class="element-item" data-shape="triangle" title="Triangle"></button>
-            <button class="element-item" data-shape="line" title="Line"></button>
-            <button class="element-item" data-shape="star" title="Star"></button>
-          </div>
+                    </div>
+
+
+                </div>
+                <!-- Elements -->
+                <div class="panel-content" id="elements-panel" style="display: none">
+                    <h3>Shapes & Graphics</h3>
+                    <div class="elements-grid">
+                        <button class="element-item" data-shape="rect" title="Rectangle"></button>
+                        <button class="element-item" data-shape="circle" title="Circle"></button>
+                        <button class="element-item" data-shape="triangle" title="Triangle"></button>
+                        <button class="element-item" data-shape="line" title="Line"></button>
+                        <button class="element-item" data-shape="star" title="Star"></button>
+                    </div>
+                </div>
+                <!-- Text -->
+                <div class="panel-content" id="text-panel" style="display: none">
+                    <h3>Add Text</h3>
+                    <button id="add-heading" class="text-btn">Add Heading</button>
+                    <button id="add-subheading" class="text-btn">Add Subheading</button>
+                    <button id="add-body-text" class="text-btn">Add Body Text</button>
+                </div>
+
+                <!-- Layers -->
+                <div id="layers-panel" class="panel-content" style="display: none">
+                    <h3>Layers</h3>
+                    <ul id="layers-list" style="list-style: none; padding-left: 0"></ul>
+                </div>
+
+                <!-- Uploads -->
+                <div class="panel-content" id="uploads-panel" style="display: none">
+                    <h3>Your Uploads</h3>
+                    <label class="upload-btn">
+                        Upload Image
+                        <input id="file-upload" type="file" accept="image/*" style="display: none" />
+                    </label>
+                    <div class="uploads-grid"></div>
+                </div>
+                <!-- Bulk Generate -->
+                <div class="panel-content" id="bulk-generate-panel" style="display: none">
+                    <h3>Bulk Certificate Generation</h3>
+                    <p>
+                        Generate multiple certificates at once using a data file (CSV,
+                        XLSX) with recipient details.
+                    </p>
+                    <br />
+                    <label class="upload-btn">
+                        Upload Data File
+                        <input id="bulk-file-upload" type="file" accept=".csv" style="display: none" />
+                    </label>
+                    <span id="file-name-display" style="margin-left: 10px"></span>
+                    <div id="bulk-upload-summary" style="display: none"></div>
+                    <button id="generate-cert-btn" class="primary-btn">
+                        Generate Certificates
+                    </button>
+                    <div id="status-panel" style="display: none; margin-top: 20px"></div>
+                </div>
+                <!-- Background Panel -->
+                <div class="panel-content" id="background-panel" style="display: none">
+                    <h3>Background Settings</h3>
+                    <label for="bg-color-picker" class="color-picker-label">Choose Background Color:</label>
+                    <input type="color" id="bg-color-picker" value="#ffffff" />
+                </div>
+            </div>
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <div class="canvas-container">
+                    <canvas id="certificate-canvas" width="1000" height="700"></canvas>
+                </div>
+            </div>
+            <div id="canvas-controls" class="canvas-controls">
+                <!-- Undo/Redo -->
+                <div class="control-group">
+                    <button id="undo-btn" title="Undo (Ctrl+Z)">⟲</button>
+                    <button id="redo-btn" title="Redo (Ctrl+Y)">⟳</button>
+                </div>
+
+                <!-- Snap to Grid -->
+                <div class="control-group">
+                    <button id="snap-grid-btn" class="toggle-btn" title="Snap to Grid">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                                d="M3 3h4v4H3V3zm7 0h4v4h-4V3zm7 0h4v4h-4V3zM3 10h4v4H3v-4zm7 0h4v4h-4v-4zm7 0h4v4h-4v-4zM3 17h4v4H3v-4zm7 0h4v4h-4v-4zm7 0h4v4h-4v-4z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- Text -->
-      <div class="panel-content" id="text-panel" style="display: none">
-        <h3>Add Text</h3>
-        <button id="add-heading" class="text-btn">Add Heading</button>
-        <button id="add-subheading" class="text-btn">Add Subheading</button>
-        <button id="add-body-text" class="text-btn">Add Body Text</button>
-      </div>
-
-      <!-- Layers -->
-      <div id="layers-panel" class="panel-content" style="display: none">
-        <h3>Layers</h3>
-        <ul id="layers-list" style="list-style: none; padding-left: 0"></ul>
-      </div>
-
-      <!-- Uploads -->
-      <div class="panel-content" id="uploads-panel" style="display: none">
-        <h3>Your Uploads</h3>
-        <label class="upload-btn">
-          Upload Image
-          <input id="file-upload" type="file" accept="image/*" style="display: none" />
-        </label>
-        <div class="uploads-grid"></div>
-      </div>
-      <!-- Bulk Generate -->
-      <div class="panel-content" id="bulk-generate-panel" style="display: none">
-        <h3>Bulk Certificate Generation</h3>
-        <p>
-          Generate multiple certificates at once using a data file (CSV,
-          XLSX) with recipient details.
-        </p>
-        <br />
-        <label class="upload-btn">
-          Upload Data File
-          <input id="bulk-file-upload" type="file" accept=".csv" style="display: none" />
-        </label>
-        <span id="file-name-display" style="margin-left: 10px"></span>
-        <div id="bulk-upload-summary" style="display: none"></div>
-        <button id="generate-cert-btn" class="primary-btn">
-          Generate Certificates
-        </button>
-        <div id="status-panel" style="display: none; margin-top: 20px"></div>
-      </div>
-      <!-- Background Panel -->
-      <div class="panel-content" id="background-panel" style="display: none">
-        <h3>Background Settings</h3>
-        <label for="bg-color-picker" class="color-picker-label">Choose Background Color:</label>
-        <input type="color" id="bg-color-picker" value="#ffffff" />
-      </div>
     </div>
-  </div>
-  <!-- Canvas Area -->
-  <div id="canvas-container" style="background: #fff; margin: 40px auto; width: 900px; height: 650px;">
-    <canvas id="certificate-canvas" width="900" height="650"></canvas>
-    <div id="canvas-controls" class="canvas-controls">
-    </div>
-  </div>
-  </div>
-  <!-- Undo/Redo -->
-  <div class="control-group">
-    <button id="undo-btn" title="Undo (Ctrl+Z)">⟲</button>
-    <button id="redo-btn" title="Redo (Ctrl+Y)">⟳</button>
-  </div>
 
-  <!-- Snap to Grid -->
-  <div class="control-group">
-    <button id="snap-grid-btn" class="toggle-btn" title="Snap to Grid">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-        <path
-          d="M3 3h4v4H3V3zm7 0h4v4h-4V3zm7 0h4v4h-4V3zM3 10h4v4H3v-4zm7 0h4v4h-4v-4zm7 0h4v4h-4v-4zM3 17h4v4H3v-4zm7 0h4v4h-4v-4zm7 0h4v4h-4v-4z" />
-      </svg>
-    </button>
-  </div>
-  </div>
-  </div>
-  </div>
-  <script>
-    // Initialize Fabric.js Canvas
-    let canvas = new fabric.Canvas('certificate-canvas');
 
-    // Function to load template by ID
-    function loadTemplate(templateId) {
-      fetch(`/api/template/${templateId}`)
-        .then(res => res.json())
-        .then(data => {
-          canvas.clear();
-          // Load background image if available
-          if (data.background) {
-            fabric.Image.fromURL(`/static/${data.background}`, function (img) {
-              canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                scaleX: canvas.width / img.width,
-                scaleY: canvas.height / img.height
-              });
-            });
-          } else {
-            canvas.setBackgroundImage(null, canvas.renderAll.bind(canvas));
-          }
-          // Load template JSON if available
-          if (data.json_data) {
-            let json;
-            try {
-              json = typeof data.json_data === "string" ? JSON.parse(data.json_data) : data.json_data;
-            } catch (e) {
-              alert("Template data corrupt hai.");
-              return;
-            }
-            canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
-          }
-        })
-        .catch(err => {
-          alert("Template load nahi ho paaya!");
-          console.error(err);
-        });
-    }
-  </script>
+    <script src="/static/Editor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        let canvas = new fabric.Canvas('certificate-canvas');
 
-  <script src="/static/Editor.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        // On first load (optional):
+        {% if template %}
+        window.onload = function () {
+            loadTemplate({{ template.id }});
+    };
+        {% endif %}
+
+        function loadTemplate(templateId) {
+            console.log("Loading template ID:", templateId);
+
+            fetch(`/api/template/${templateId}`)
+                .then(res => res.json())
+                .then(data => {
+                    canvas.clear();
+
+                    // Load background image
+                    if (data.background) {
+                        fabric.Image.fromURL(`/static/${data.background}`, function (img) {
+                            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                                scaleX: canvas.width / img.width,
+                                scaleY: canvas.height / img.height
+                            });
+                        });
+                    }
+
+                    // Load canvas design (objects/text)
+                    if (data.json_data) {
+                        try {
+                            const json = typeof data.json_data === "string"
+                                ? JSON.parse(data.json_data)
+                                : data.json_data;
+                            canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
+                        } catch (e) {
+                            console.error("Error loading JSON:", e);
+                        }
+                    }
+                })
+                .catch(err => {
+                    alert("Failed to load template.");
+                    console.error(err);
+                });
+        }
+    </script>
+
+
+
 </body>
 
 </html>

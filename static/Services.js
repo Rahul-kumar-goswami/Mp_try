@@ -512,17 +512,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  // Initialize recent templates section
-  // updateRecentTemplates();
 
-  // Initialize start design button
-  // document.querySelector(".start-btn").addEventListener("click", () => {
-  //   alert("Starting a new design! Redirecting to editor...");
-  //   // window.location.href = '/HTML/Editor.html';
-  // });
-
-  // document.querySelector(".create-btn").addEventListener("click", () => {
-  //   alert("Creating a new design! Redirecting to editor...");
-  //   // window.location.href = '/HTML/Editor.html';
-  // });
 });
+window.location.href = `/editor/${templateId}`;
+
