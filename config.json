@@ -1,8 +1,8 @@
 {
   "parmas": {
     "local_server": true,
-    "local_url": "mysql+pymysql://root:@localhost/certi_gen",
-    "prod_url": "mysql+pymysql://root:@localhost/certi_gen",
+    "local_url": "mysql+pymysql://admin:Rahul12345678910@localhost:3308/certi_gen",
+    "prod_url": "mysql+pymysql://admin:Rahul12345678910@localhost:3308/certi_gen",
     "user_name": "certigenweb@gmail.com",
     "password": "lvmmcgvbdsqhnytu"
   }
