@@ -66,15 +66,26 @@
         <button class="start-btn" onclick="window.location.href='/editor'">Start Designing</button>
       </div>
       <div class="banner-images">
-        <img src="/static/images/templates1.jpg" alt="Featured Certificate" class="featured-img" />
-        <img src="/Media/featured-cert-1.png" alt="Featured Certificate" class="featured-img" />
+        <img src="/static/images/templates2.jpg" alt="Featured Certificate" class="featured-img" />
+        <img src="/static/images/templates3.jpg" alt="Featured Certificate" class="featured-img" />
       </div>
     </div>
 
     <!-- 🗂️ Browse by Category -->
     <section class="browse-section">
       <h2>Browse by category</h2>
-      <div class="category-cards">
+        <div class="template-grid">
+        {% for temp in templates %}
+        <a href="/editor/{{ temp.id }}" class="template-card" data-category="{{ temp.category }}">
+          <img src="/static/{{ temp.thumbnail }}" alt="{{ temp.name }}" />
+          <div class="template-info">
+            <h3>{{ temp.name }}</h3>
+            <p>{{ temp.category.title() }}</p>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      <!-- <div class="category-cards">
         <div class="category-card" data-category="academic">
           <img src="/static/images/templates1.jpg" alt="Academic Certificates" />
           <span>Academic</span>
@@ -95,7 +106,7 @@
           <img src="/Media/achievement-thumb.png" alt="Achievement Certificates" />
           <span>Achievement</span>
         </div>
-      </div>
+      </div> -->
     </section>
 
     <!-- 📄 All Templates -->

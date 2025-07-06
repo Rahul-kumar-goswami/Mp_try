@@ -328,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   ];
 
-  const templatesContainer = document.getElementById("templates-container");
+  // const templatesContainer = document.querySelector(".template-grid");
   const categoryTabs = document.querySelectorAll(".tab-btn");
   const categoryCards = document.querySelectorAll(".category-card");
   const searchInput = document.getElementById("template-search");
@@ -491,17 +491,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // Create template card HTML
   function createTemplateCard(template) {
     return `
-            <div class="template-card" data-id="${
-              template.id
-            }" data-category="${template.category}">
-                <img src="${
-                  template.image
-                }" alt="${template.name}" class="template-img">
+            <div class="template-card" data-id="${template.id
+      }" data-category="${template.category}">
+                <img src="${template.image
+      }" alt="${template.name}" class="template-img">
                 <div class="template-info">
                     <h3>${template.name}</h3>
                     <div class="template-category">${capitalizeFirstLetter(
-                      template.category
-                    )}</div>
+        template.category
+      )}</div>
                 </div>
             </div>
         `;
@@ -514,5 +512,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 });
-window.location.href = `/editor/${templateId}`;
+// window.location.href = `/editor/${templateId}`;
 

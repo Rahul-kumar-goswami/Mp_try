@@ -3,91 +3,248 @@ if (localStorage.getItem("darkMode") === "true") {
   body.classList.add("darkmode");
 }
 
+// ====== Canvas Initialization ======
+canvas = new fabric.Canvas("certificate-canvas", {
+  width: 900,
+  height: 650,
+  backgroundColor: "#ffffff",
+  preserveObjectStacking: true,
+});
 
-// ====== Load Template from URL ======
+// ====== Default Canvas Setup ======
+function setupDefaultCanvas() {
+  canvas.clear();
+  canvas.setWidth(900);
+  canvas.setHeight(650);
+  canvas.setBackgroundColor("#ffffff", canvas.renderAll.bind(canvas));
+  console.log("Default canvas setup complete");
+  // Add a subtle default background or border to make canvas visible
+  const defaultBorder = new fabric.Rect({
+    left: 0,
+    top: 0,
+    width: canvas.width,
+    height: canvas.height,
+    fill: "transparent",
+    stroke: "#e5e7eb",
+    strokeWidth: 2,
+    selectable: false,
+    evented: false,
+    strokeDashArray: [10, 5],
+  });
+  canvas.add(defaultBorder);
+
+  // Add default text
+  const defaultText = new fabric.Text("Certificate Editor", {
+    left: canvas.width / 2,
+    top: canvas.height / 2,
+    originX: "center",
+    originY: "center",
+    fontSize: 32,
+    fill: "#9ca3af",
+    fontFamily: "Inter",
+    selectable: true,
+    evented: true,
+  });
+  canvas.add(defaultText);
+
+  canvas.renderAll();
+}
+
+// ====== DOMContentLoaded: All Initialization Here ======
 window.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const templateId = urlParams.get("template");
+  // Load Template from URL (or default)
+  // const urlParams = new URLSearchParams(window.location.search);
+  // const templateId = 2;
+  const pathParts = window.location.pathname.split("/");
+  const templateId = pathParts[pathParts.length - 1];
 
-  if (!templateId) {
-    alert("No template specified!");
-    return;
+  if (templateId) {
+    fetch(`/api/template/${templateId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const template = {
+          background: data.background, // Flask returns `/static/backgrounds/xyz.jpg`
+          jsonData: data.json_data, // JSON string
+        };
+        loadTemplateToCanvas(template);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch template data:", err);
+        setupDefaultCanvas();
+      });
+  } else {
+    setupDefaultCanvas();
   }
 
-  // Construct paths based on template ID
-  const templateFolder = `/Templates/template-${templateId}`;
-  const template = {
-    background: `${templateFolder}/bg.png`,
-    jsonPath: `${templateFolder}/data.json`,
-  };
+  // Setup all handlers and UI logic
+  loadTemplates();
+  setupSidebarNavigation();
+  setupElementHandlers();
+  setupTextHandlers();
+  setupUploadHandler();
+  setupObjectActionHandlers();
+  setupFormattingToolbarHandlers();
+  setupTitleEditable();
 
-  loadTemplateToCanvas(template);
+  // Save initial state for undo/redo
+  saveState();
 });
 
 // ====== Load Template to Canvas ======
 function loadTemplateToCanvas(template) {
-  // Clear canvas first to avoid duplicates
+  if (!template || !template.background) {
+    console.warn("No valid template provided, setting up default canvas");
+    setupDefaultCanvas();
+    return;
+  }
+
   canvas.clear();
 
-  // Load background image first
-  fabric.Image.fromURL(template.background, function (img) {
-    const scale = Math.min(
-      canvas.width / img.width,
-      canvas.height / img.height
-    );
-    img.set({
-      scaleX: scale,
-      scaleY: scale,
-      originX: "center",
-      originY: "center",
-      left: canvas.width / 2,
-      top: canvas.height / 2,
-      selectable: false,
-      evented: false,
-    });
+  fabric.Image.fromURL(
+    template.background,
+    function (img) {
+      if (!img) {
+        console.error("Failed to load template background image");
+        setupDefaultCanvas();
+        return;
+      }
 
-    // Set background image and render
-    canvas.setBackgroundImage(img, () => {
-      canvas.renderAll();
+      const originalWidth = img.width;
+      const originalHeight = img.height;
+      const scale = 0.5; // Display scale
 
-      // After BG is set, fetch JSON and add text objects
-      fetch(template.jsonPath)
-        .then((res) => res.json())
-        .then((data) => {
-          data.objects.forEach((obj) => {
-            let fabricObj = null;
-            if (obj.type === "textbox") {
-              fabricObj = new fabric.Textbox(obj.text, {
-                left: obj.left,
-                top: obj.top,
-                fontSize: obj.fontSize,
-                fontFamily: obj.fontFamily,
-                fill: obj.fill,
-                fontWeight: obj.fontWeight || "normal",
-                selectable: true,
+      // Scaled-down canvas size
+      canvas.setWidth(originalWidth * scale);
+      canvas.setHeight(originalHeight * scale);
+
+      // Apply matching CSS styles
+      const widthPx = originalWidth * scale + "px";
+      const heightPx = originalHeight * scale + "px";
+
+      canvas.lowerCanvasEl.style.width = widthPx;
+      canvas.lowerCanvasEl.style.height = heightPx;
+
+      if (canvas.upperCanvasEl) {
+        canvas.upperCanvasEl.style.width = widthPx;
+        canvas.upperCanvasEl.style.height = heightPx;
+      }
+
+      if (canvas.wrapperEl) {
+        canvas.wrapperEl.style.width = widthPx;
+        canvas.wrapperEl.style.height = heightPx;
+      }
+
+      // Set scaled background image
+      img.set({
+        scaleX: scale,
+        scaleY: scale,
+        originX: "left",
+        originY: "top",
+        left: 0,
+        top: 0,
+        selectable: false,
+        evented: false,
+      });
+
+      canvas.setBackgroundImage(img, () => {
+        canvas.renderAll();
+
+        // Load and scale objects
+        if (template.jsonData) {
+          try {
+            const data = JSON.parse(template.jsonData);
+
+            if (data.objects) {
+              data.objects.forEach((obj) => {
+                let fabricObj = null;
+
+                if (obj.type === "i-text") {
+                  fabricObj = new fabric.IText(obj.text, {
+                    ...obj,
+                    left: obj.left * scale,
+                    top: obj.top * scale,
+                    scaleX: (obj.scaleX || 1) * scale,
+                    scaleY: (obj.scaleY || 1) * scale,
+                    selectable: true,
+                  });
+                }
+
+                if (fabricObj) {
+                  canvas.add(fabricObj);
+                }
               });
+
+              canvas.renderAll();
             }
-            // Extend here for other fabric types if needed
-            if (fabricObj) {
-              canvas.add(fabricObj);
-            }
-          });
-          canvas.renderAll();
-        })
-        .catch((err) => {
-          console.error("Error loading JSON text elements:", err);
-        });
-    });
-  });
+          } catch (err) {
+            console.warn("Could not parse/load JSON text elements:", err);
+          }
+        }
+      });
+    },
+    {
+      crossOrigin: "anonymous",
+    }
+  );
 }
 
-// ====== The rest of your Editor.js code remains unchanged ======
-// (Keep all your existing sidebar, text, shapes, formatting, download, etc. logic)
-
-
+// ====== Template Data & Loading ======
+const certificateTemplates = [
+  {
+    id: 1,
+    name: "Academic",
+    thumbnail: "/static/thumbnails/thumbnail.png",
+    background: "/static/backgrounds/bg.png",
+    json: "/static/jsons/data.json",
+  },
+  {
+    id: 2,
+    name: "Professional",
+    thumbnail: "/static/thumbnails/thumbnail copy.png",
+    background: "/static/backgrounds/bg copy.png",
+    json: "/static/jsons/data copy.json",
+  },,
+  {
+    id: 3,
+    name: "Achievement",
+    thumbnail: "/static/thumbnails/thumbnail1.png",
+    background: "/static/backgrounds/background1.png",
+    json: "/static/jsons/data copy 2.json",
+  },
+  {
+    id: 4,
+    name: "Custom",
+    thumbnail: "/static/thumbnails/thumbnail2.png",
+    background: "/static/backgrounds/background2.png",
+    json: "/static/jsons/data copy 3.json",
+  },
+  {
+    id: 5,
+    name: "Event",
+    thumbnail: "/static/thumbnails/thumbnail3.png",
+    background: "/static/backgrounds/background3.png",
+    json: "/static/jsons/data copy 4.json",
+  },
+  {
+    id: 6,
+    name: "Corporate",
+    thumbnail: "/static/thumbnails/thumbnail4.png",
+    background: "/static/backgrounds/background4.png",
+    json: "/static/jsons/data copy 5.json",
+  },
+  {
+    id: 7,
+    name: "Sports",
+    thumbnail: "/static/thumbnails/thumbnail5.png",
+    background: "/static/backgrounds/background5.png",
+    json: "/static/jsons/data copy 6.json",
+  },
+];
 
 function loadTemplates() {
   const templateGrid = document.querySelector(".template-grid");
+  if (!templateGrid) return;
+
   templateGrid.innerHTML = "";
   certificateTemplates.forEach((template) => {
     const templateItem = document.createElement("div");
@@ -176,7 +333,7 @@ function addShape(shape) {
       object = new fabric.Circle({
         left: 350,
         top: 250,
-        fill: "#3B82F6",
+        fill: "rgba(59,130,246,0.5)",
         radius: 48,
         stroke: "#000",
         strokeWidth: 1,
@@ -261,7 +418,7 @@ function addText(text, options = {}) {
 }
 
 // ====== Layer Management ======
-const layerPanel = document.getElementById("layer-panel");
+const layerPanel = document.getElementById("layers-panel");
 const layersList = document.getElementById("layers-list");
 const layerButton = document.querySelector('[data-tool="layers"]');
 
@@ -312,7 +469,6 @@ function populateLayers() {
 
       li.prepend(upBtn);
       li.appendChild(downBtn);
-
       layersList.appendChild(li);
     });
 }
@@ -391,6 +547,7 @@ function setupUploadHandler() {
     reader.readAsDataURL(file);
   };
 }
+
 // ====== Background Color Picker ======
 document
   .getElementById("bg-color-picker")
@@ -661,7 +818,6 @@ function setupFormattingToolbarHandlers() {
   document.getElementById("text-case").addEventListener("change", function () {
     const activeObject = canvas.getActiveObject();
     const caseOption = this.value;
-
     if (
       !activeObject ||
       typeof activeObject.setSelectionStyles !== "function"
@@ -786,56 +942,199 @@ downloadDropdown.querySelectorAll(".format-option").forEach((btn) => {
 });
 
 // Download function for PNG or PDF
+// function downloadCertificate(format) {
+//   const { jsPDF } = window.jspdf;
+
+//   const originalBg = canvas.backgroundColor;
+//   const needsWhiteBg =
+//     !originalBg ||
+//     originalBg === "transparent" ||
+//     originalBg === "rgba(0,0,0,0)";
+
+//   if (needsWhiteBg) {
+//     canvas.setBackgroundColor("white", canvas.renderAll.bind(canvas));
+//   }
 function downloadCertificate(format) {
   const { jsPDF } = window.jspdf;
 
-  // Capture the original background color
   const originalBg = canvas.backgroundColor;
-
-  // If no background is set, force white for download
   const needsWhiteBg =
-    !originalBg ||
-    originalBg === "transparent" ||
-    originalBg === "rgba(0,0,0,0)";
+    !originalBg || originalBg === "transparent" || originalBg === "rgba(0,0,0,0)";
+
   if (needsWhiteBg) {
     canvas.setBackgroundColor("white", canvas.renderAll.bind(canvas));
   }
 
-  setTimeout(() => {
-    const dataURL = canvas.toDataURL({ format: "png", quality: 1 });
+  const filename = `certificate.${format}`;
+  const filePath = `/static/generated/${filename}`; // Full path for Flask
 
-    if (format === "png") {
+  if (format === "png") {
+    canvas.toBlob((blob) => {
       const link = document.createElement("a");
-      link.download = "certificate.png";
-      link.href = dataURL;
-      document.body.appendChild(link);
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
       link.click();
-      document.body.removeChild(link);
-    } else if (format === "pdf") {
-      if (typeof jsPDF === "undefined") {
-        alert("Error: jsPDF library is not loaded.");
-        return;
-      }
 
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [canvas.width, canvas.height],
+      const formData = new FormData();
+      formData.append("template", blob, filename);
+
+      fetch("/upload-template", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.text())
+        .then((msg) => {
+          console.log("✅ Uploaded:", msg);
+
+          // Set file path in hidden input
+          document.getElementById("filePathInput").value = filePath;
+
+          // Open modal
+          openEmailModal(filename);
+        });
+    }, "image/png");
+  }
+
+  if (format === "pdf") {
+    const dataUrl = canvas.toDataURL({ format: "png", multiplier: 2 });
+    const pdf = new jsPDF("l", "pt", [canvas.width, canvas.height]);
+    pdf.addImage(dataUrl, "PNG", 0, 0, canvas.width, canvas.height);
+    pdf.save(filename);
+
+    const pdfBlob = pdf.output("blob");
+
+    const formData = new FormData();
+    formData.append("template", pdfBlob, filename);
+
+    fetch("/upload-template", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.text())
+      .then((msg) => {
+        console.log("✅ Uploaded:", msg);
+
+        // Set file path in hidden input
+        document.getElementById("filePathInput").value = filePath;
+
+        // Open modal
+        openEmailModal(filename);
       });
-      pdf.addImage(dataURL, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save("certificate.pdf");
-    }
-
-    // Restore original background if it was transparent
-    if (needsWhiteBg) {
-      canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
-    }
-  }, 100);
-
-  document.getElementById("save-btn").onclick = function () {
-    alert("Design saved! (Implement actual save logic)");
-  };
+  }
 }
+
+
+
+// Store current view dimensions and scale
+const viewScale = 0.5;
+const viewWidth = canvas.getWidth();
+const viewHeight = canvas.getHeight();
+const fullWidth = viewWidth / viewScale;
+const fullHeight = viewHeight / viewScale;
+
+// Step 1: Scale canvas up for full-res export
+canvas.setWidth(fullWidth);
+canvas.setHeight(fullHeight);
+
+canvas.lowerCanvasEl.style.width = fullWidth + "px";
+canvas.lowerCanvasEl.styleheight = fullHeight + "px"; // Note: corrected below
+
+if (canvas.upperCanvasEl) {
+  canvas.upperCanvasEl.style.width = fullWidth + "px";
+  canvas.upperCanvasEl.style.height = fullHeight + "px";
+}
+
+if (canvas.wrapperEl) {
+  canvas.wrapperEl.style.width = fullWidth + "px";
+  canvas.wrapperEl.style.height = fullHeight + "px";
+}
+
+// Scale background image to 100%
+if (canvas.backgroundImage) {
+  canvas.backgroundImage.scaleX = 1;
+  canvas.backgroundImage.scaleY = 1;
+}
+
+// Scale all objects to full size
+canvas.getObjects().forEach((obj) => {
+  obj.scaleX /= viewScale;
+  obj.scaleY /= viewScale;
+  obj.left /= viewScale;
+  obj.top /= viewScale;
+  obj.setCoords();
+});
+
+// Correct typo in above code
+canvas.lowerCanvasEl.style.height = fullHeight + "px";
+
+canvas.renderAll();
+
+// Step 2: Download
+setTimeout(() => {
+  const dataURL = canvas.toDataURL({ format: "png", quality: 1 });
+
+  if (format === "png") {
+    const link = document.createElement("a");
+    link.download = "certificate.png";
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else if (format === "pdf") {
+    if (typeof jsPDF === "undefined") {
+      alert("Error: jsPDF library is not loaded.");
+      return;
+    }
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [fullWidth, fullHeight],
+    });
+    pdf.addImage(dataURL, "PNG", 0, 0, fullWidth, fullHeight);
+    pdf.save("certificate.pdf");
+  }
+
+  // Step 3: Restore everything back to view state (0.5x)
+  canvas.setWidth(viewWidth);
+  canvas.setHeight(viewHeight);
+
+  canvas.lowerCanvasEl.style.width = viewWidth + "px";
+  canvas.lowerCanvasEl.style.height = viewHeight + "px";
+
+  if (canvas.upperCanvasEl) {
+    canvas.upperCanvasEl.style.width = viewWidth + "px";
+    canvas.upperCanvasEl.style.height = viewHeight + "px";
+  }
+
+  if (canvas.wrapperEl) {
+    canvas.wrapperEl.style.width = viewWidth + "px";
+    canvas.wrapperEl.style.height = viewHeight + "px";
+  }
+
+  // Restore background scaling
+  if (canvas.backgroundImage) {
+    canvas.backgroundImage.scaleX = viewScale;
+    canvas.backgroundImage.scaleY = viewScale;
+  }
+
+  // Scale all objects back down
+  canvas.getObjects().forEach((obj) => {
+    obj.scaleX *= viewScale;
+    obj.scaleY *= viewScale;
+    obj.left *= viewScale;
+    obj.top *= viewScale;
+    obj.setCoords();
+  });
+
+  canvas.renderAll();
+
+  // Restore transparent background if needed
+  if (needsWhiteBg) {
+    canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
+  }
+}, 100);
+
 
 // ====== Editor Title Editable ======
 function setupTitleEditable() {
@@ -845,6 +1144,7 @@ function setupTitleEditable() {
     }
   });
 }
+
 // ====== Undo/Redo Implementation ======
 let undoStack = [];
 let redoStack = [];
@@ -982,6 +1282,7 @@ canvas.on("after:render", function () {
   drawGridLines();
 });
 
+// ====== Bulk Generation ======
 let namePlaceholder;
 let bulkData = [];
 let generatedImages = [];
@@ -1027,10 +1328,10 @@ function insertNamePlaceholder(name) {
     originX: "center",
     originY: "center",
     selectable: true,
-    hasControls: false,
-    lockScalingX: true,
-    lockScalingY: true,
-    lockRotation: true,
+    hasControls: true,
+    lockScalingX: false,
+    lockScalingY: false,
+    lockRotation: false,
   });
 
   canvas.add(namePlaceholder);
@@ -1062,6 +1363,18 @@ document
       fontWeight,
       fontStyle,
       underline,
+      originX,
+      originY,
+      textAlign,
+      shadow,
+      stroke,
+      strokeWidth,
+      scaleX,
+      scaleY,
+      angle,
+      flipX,
+      flipY,
+      opacity,
     } = namePlaceholder;
 
     const casingType = detectCasing(namePlaceholder.text);
@@ -1086,8 +1399,18 @@ document
         fontWeight,
         fontStyle,
         underline,
-        originX: "center",
-        originY: "center",
+        originX,
+        originY,
+        textAlign,
+        shadow,
+        stroke,
+        strokeWidth,
+        scaleX,
+        scaleY,
+        angle,
+        flipX,
+        flipY,
+        opacity,
         selectable: false,
         editable: false,
       });
@@ -1164,20 +1487,24 @@ function showFinalOptions() {
   const panel = document.getElementById("status-panel");
   panel.innerHTML = `
     <p>✅ Bulk generation complete.</p>
-    <button id="download-zip-btn">Download ZIP</button>
-    <button id="share-btn">Share</button>
+    <button id="download-png-zip-btn" style="margin-bottom: 10px; margin-top:10px">Download PNG ZIP</button>
+    <button id="download-pdf-zip-btn" style="margin-bottom: 10px">Download PDF ZIP</button>
+    <button id="share-btn" style="margin-bottom: 10px">Share</button>
   `;
 
   document
-    .getElementById("download-zip-btn")
-    .addEventListener("click", downloadZip);
+    .getElementById("download-png-zip-btn")
+    .addEventListener("click", downloadPngZip);
+  document
+    .getElementById("download-pdf-zip-btn")
+    .addEventListener("click", downloadPdfZip);
   document
     .getElementById("share-btn")
     .addEventListener("click", shareCertificates);
 }
 
-// Download ZIP
-function downloadZip() {
+// Download PNG ZIP
+function downloadPngZip() {
   const zip = new JSZip();
   generatedImages.forEach(({ name, dataURL }) => {
     const base64Data = dataURL.split(",")[1];
@@ -1187,7 +1514,37 @@ function downloadZip() {
   zip.generateAsync({ type: "blob" }).then(function (content) {
     const link = document.createElement("a");
     link.href = URL.createObjectURL(content);
-    link.download = "certificates.zip";
+    link.download = "certificates_png.zip";
+    link.click();
+  });
+}
+
+// Download PDF ZIP
+async function downloadPdfZip() {
+  if (!window.jspdf) {
+    alert("Error: jsPDF library is not loaded. Please include jsPDF script.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const zip = new JSZip();
+
+  for (let i = 0; i < generatedImages.length; i++) {
+    const { name, dataURL } = generatedImages[i];
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [canvas.width, canvas.height],
+    });
+    pdf.addImage(dataURL, "PNG", 0, 0, canvas.width, canvas.height);
+    const pdfBlob = pdf.output("blob");
+    zip.file(`${name}.pdf`, pdfBlob);
+  }
+
+  zip.generateAsync({ type: "blob" }).then(function (content) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = "certificates_pdf.zip";
     link.click();
   });
 }
@@ -1222,169 +1579,19 @@ document.getElementById("preview-btn").addEventListener("click", () => {
 
 // ====== Initialization ======
 function init() {
-  loadTemplates();
-  if (certificateTemplates.length > 0)
-    loadTemplateToCanvas(certificateTemplates[0]);
   setupSidebarNavigation();
   setupElementHandlers();
   setupTextHandlers();
   setupUploadHandler();
   setupObjectActionHandlers();
   setupFormattingToolbarHandlers();
-  // setupDownloadAndSave();
   setupTitleEditable();
 }
-window.addEventListener("DOMContentLoaded", () => {
-  const bgUrl = document.getElementById("bg-image")?.src;
-  if (bgUrl) {
-    fabric.Image.fromURL(bgUrl, function (img) {
-      canvas.setBackgroundImage(
-        img,
-        canvas.renderAll.bind(canvas),
-        {
-          scaleX: canvas.width / img.width,
-          scaleY: canvas.height / img.height,
-        }
-      );
-    });
-  }
-
-  const jsonElement = document.getElementById("json-data-holder");
-  if (jsonElement) {
-    const jsonData = JSON.parse(jsonElement.textContent);
-    canvas.loadFromJSON(jsonData, () => {
-      canvas.renderAll();
-      console.log("Template JSON loaded.");
-    });
-  }
-
-});
-
-// Load on initial page load(Editor.html should define initialTemplateId)
-if (typeof initialTemplateId !== "undefined" && initialTemplateId !== null) {
-  loadTemplate(initialTemplateId);
+init();
+// nbew
+function openEmailModal() {
+  document.getElementById("shareModal").style.display = "block";
 }
-
-// Load template by ID from / api / template / <id>
-function loadTemplate(templateId) {
-  console.log("Loading template ID:", templateId);
-
-  fetch(`/api/template/${templateId}`)
-    .then(res => res.json())
-    .then(data => {
-      canvas.clear(); // Clear existing canvas
-
-      // ✅ Load background image
-      if (data.background) {
-        fabric.Image.fromURL(`/static/${data.background}`, function (img) {
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-            scaleX: canvas.width / img.width,
-            scaleY: canvas.height / img.height
-          });
-        });
-      }
-
-      // ✅ Load JSON design with editable patch
-      if (data.json_data) {
-        try {
-          const json = typeof data.json_data === "string"
-            ? JSON.parse(data.json_data)
-            : data.json_data;
-
-          canvas.loadFromJSON(json, () => {
-            canvas.getObjects().forEach(obj => {
-              if (obj.type === 'textbox' || obj.type === 'i-text') {
-                obj.set({
-                  selectable: true,
-                  editable: true,
-                  hasControls: true,
-                  lockMovementX: false,
-                  lockMovementY: false
-                });
-              }
-            });
-            canvas.renderAll();
-          });
-
-        } catch (err) {
-          console.error("Invalid JSON data:", err);
-        }
-      }
-    })
-    .catch(err => {
-      console.error("Error loading template:", err);
-    });
+function closeEmailModal() {
+  document.getElementById("shareModal").style.display = "none";
 }
-
-
-// Optional: Add text button support
-function addText() {
-  const textbox = new fabric.Textbox("Your Text", {
-    left: 100,
-    top: 100,
-    fontSize: 28,
-    fill: "#000",
-    editable: true
-  });
-  canvas.add(textbox);
-  canvas.setActiveObject(textbox);
-}
-
-// Optional: Enable editing features
-canvas.on('object:selected', function (e) {
-  if (e.target && e.target.type === 'textbox') {
-    console.log("Text selected:", e.target.text);
-  }
-});
-
-function loadTemplate(templateId) {
-  fetch(`/api/template/${templateId}`)
-    .then(res => res.json())
-    .then(data => {
-      canvas.clear();
-      if (data.background) {
-        fabric.Image.fromURL(`/static/${data.background}`, function (img) {
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-            scaleX: canvas.width / img.width,
-            scaleY: canvas.height / img.height
-          });
-        });
-      }
-
-      if (data.json_data) {
-        const json = typeof data.json_data === "string"
-          ? JSON.parse(data.json_data)
-          : data.json_data;
-        canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
-      }
-    })
-    .catch(err => {
-      console.error("Failed to load template", err);
-    });
-}
-
-// Load on DOM ready
-document.addEventListener("DOMContentLoaded", () => {
-  if (typeof initialTemplateId !== "undefined" && initialTemplateId !== null) {
-    loadTemplate(initialTemplateId);
-  }
-
-  // Setup basic tool example: add heading
-  document.getElementById("add-heading")?.addEventListener("click", () => {
-    const textbox = new fabric.Textbox("Add Heading", {
-      left: 100,
-      top: 100,
-      fontSize: 32,
-      fontWeight: 'bold',
-      fill: "#111827",
-      fontFamily: "Arial"
-    });
-    canvas.add(textbox);
-    canvas.setActiveObject(textbox);
-    canvas.renderAll();
-  });
-
-  // Add more tool setups here as needed (shapes, uploads, etc.)
-});
-
-// newnmASvjhmasgv
