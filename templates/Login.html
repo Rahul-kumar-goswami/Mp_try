@@ -42,9 +42,12 @@
           <a href="/services">Services</a>
           <a href="/contact">Contact</a>
           <a href="/about">About</a>
+          {% if not logged_in %}
           <a href="/" id="login-link">Login</a>
+          {% endif %}
         </div>
         <!-- Notification icon, hidden when not logged in -->
+        {% if logged_in %}
         <div class="notif-container" id="notif-container">
           <button class="notif-btn" aria-label="Messages/Notifications">
             <!-- Bell SVG icon -->
@@ -63,8 +66,10 @@
             </svg>
           </button>
         </div>
+        {% endif %}
         <!-- User icon container, hidden initially -->
-        <div id="user-container" style="display: none; position: relative">
+        {% if logged_in %}
+        <div id="user-container" style="position: relative">
           <div
             id="user-icon"
             class="user-icon"
@@ -83,9 +88,10 @@
           >
             <a href="#" role="menuitem" tabindex="0">Profile</a>
             <a href="#" role="menuitem" tabindex="0">Settings</a>
-            <button id="logout-btn" role="menuitem" tabindex="0">Logout</button>
+            <a href="/logout" role="menuitem" tabindex="0">Logout</a>
           </div>
         </div>
+        {% endif %}
         <!-- Dark Mode Toggle -->
         <button
           class="dark-mode-toggle"
@@ -208,7 +214,11 @@
         <a href="/services">Services</a>
         <a href="/contact">Contact</a>
         <a href="/about">About</a>
-        <a href="/" id="login-link">Login</a>
+        {% if not logged_in %}
+        <a href="/">Login</a>
+        {% endif %} {% if logged_in %}
+        <a href="/logout">Logout</a>
+        {% endif %}
       </div>
       <div class="wrapper">
         <div class="form-box login">
@@ -292,10 +302,11 @@
               </p>
             </div>
           </form>
-          <form action="/verify_otp" method="POST">
+          <form action="/register" method="POST">
             <div
+              id="otp-section"
               class="input-box animation"
-              style="--i: 3; --j: 3; margin-top: -10px"
+              style="--i: 6; --j: 6; margin-top: 10px; display: none"
             >
               <input type="text" id="otp" name="otp" required />
               <label>OTP</label>
@@ -425,6 +436,33 @@
         <span>&copy; 2024 CERTI-GEN. All rights reserved.</span>
       </div>
     </footer>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("otp") === "1") {
+        document.querySelector(".wrapper").classList.add("active");
+        document.getElementById("otp-section").style.display = "block";
+        // Optional: alert message
+        alert("✅ OTP sent successfully. Please check your email.");
+      }
+      if (urlParams.get("error") === "invalid_otp") {
+        document.querySelector(".wrapper").classList.add("active");
+        document.getElementById("otp-section").style.display = "block";
+        alert("❌ Invalid OTP. Please try again.");
+      }
+      if (urlParams.get("error") === "mail_fail") {
+        alert("❌ Failed to send OTP. Please try again.");
+      }
+      if (urlParams.get("success") === "1") {
+        alert("✅ Registration successful. You can now log in.");
+      }
+      if (urlParams.get("error") === "1") {
+        alert("❌ Invalid email or password. Please try again.");
+      }
+      if (urlParams.get("error") === "2") {
+        alert("❌ Email already registered.");
+      }
+    </script>
+
     <script src="/static/Login.js"></script>
     <script src="/static/Navbar.js"></script>
   </body>

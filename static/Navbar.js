@@ -21,7 +21,6 @@ darkModeToggle.addEventListener("keydown", (e) => {
 });
 
 // 3. SIMULATE LOGIN STATE (Leave this as it is after the localStorage check and toggle)
-let isLoggedIn = false;
 loginLink = document.getElementById("login-link");
 const userContainer = document.getElementById("user-container");
 const userIcon = document.getElementById("user-icon");
@@ -29,51 +28,34 @@ const userDropdown = document.getElementById("user-dropdown");
 const logoutBtn = document.getElementById("logout-btn");
 const notifContainer = document.getElementById("notif-container");
 
-function updateNavbarForLogin() {
-  if (isLoggedIn) {
-    loginLink.style.display = "none";
-    userContainer.style.display = "flex";
-    notifContainer.style.display = "flex";
-  } else {
-    loginLink.style.display = "inline";
-    userContainer.style.display = "none";
-    notifContainer.style.display = "none";
-  }
-}
-updateNavbarForLogin();
-
 // 4. USER ICON FUNCTIONALITY (Keep these event listeners)
-userIcon.addEventListener("click", () => {
-  const expanded = userIcon.getAttribute("aria-expanded") === "true";
-  if (expanded) {
-    userDropdown.classList.remove("active");
-    userIcon.setAttribute("aria-expanded", "false");
-  } else {
-    userDropdown.classList.add("active");
-    userIcon.setAttribute("aria-expanded", "true");
-  }
-});
 
-document.addEventListener("click", (e) => {
-  if (!userContainer.contains(e.target)) {
-    userDropdown.classList.remove("active");
-    userIcon.setAttribute("aria-expanded", "false");
-  }
-});
+if (userIcon && userDropdown && userContainer) {
+  userIcon.addEventListener("click", () => {
+    const expanded = userIcon.getAttribute("aria-expanded") === "true";
+    if (expanded) {
+      userDropdown.classList.remove("active");
+      userIcon.setAttribute("aria-expanded", "false");
+    } else {
+      userDropdown.classList.add("active");
+      userIcon.setAttribute("aria-expanded", "true");
+    }
+  });
 
-userIcon.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    userIcon.click();
-  }
-});
+  document.addEventListener("click", (e) => {
+    if (!userContainer.contains(e.target)) {
+      userDropdown.classList.remove("active");
+      userIcon.setAttribute("aria-expanded", "false");
+    }
+  });
 
-logoutBtn.addEventListener("click", () => {
-  isLoggedIn = false;
-  updateNavbarForLogin();
-  userDropdown.classList.remove("active");
-  userIcon.setAttribute("aria-expanded", "false");
-});
+  userIcon.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      userIcon.click();
+    }
+  });
+}
 
 // // Simulate login after 2 seconds
 // setTimeout(() => {

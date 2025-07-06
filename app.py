@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 import random
 import json
 import os
+from functools import wraps
+
+# ------------------ Config & App Setup ------------------
 
 with open('config.json', 'r') as c:
     parmas = json.load(c)["parmas"]
@@ -24,6 +27,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = parmas['local_url']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# ------------------ Login Required Decorator ------------------
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash("Please login first to access this page.", "warning")
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+# ------------------ Models ------------------
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)    
@@ -61,24 +76,32 @@ def login():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        password = request.form.get('password')
         otp_input = request.form.get('otp')
 
         if otp_input:
             if otp_input == session.get('otp'):
-                new_user = Users(name=session['name'], email=session['email'], password=session['password'])
-                db.session.add(new_user)
-                db.session.commit()
-                session.clear()
-                return redirect(url_for('home'))
+                try:
+                    new_user = Users(
+                        name=session['name'],
+                        email=session['email'],
+                        password=session['password']
+                    )
+                    db.session.add(new_user)
+                    db.session.commit()
+                    session.clear()
+                    return redirect(url_for('login', success=1))
+                except Exception as e:
+                    return f"❌ Failed to register user: {e}"
             else:
-                return render_template('Login.html', parmas=parmas, show_otp=True, otp_error="Invalid OTP")
+                return redirect(url_for('login', error="invalid_otp"))
+
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
         existing_user = Users.query.filter_by(email=email).first()
         if existing_user:
-            return render_template('Login.html', parmas=parmas, email_error="Email already registered")
+            return redirect(url_for("login", error=2))
 
         otp = str(random.randint(100000, 999999))
         session['otp'] = otp
@@ -93,54 +116,42 @@ def register():
                 recipients=[email],
                 body=f"Hello {name},\n\nYour OTP is: {otp}\n\nThank you!"
             )
-            return render_template('Login.html', parmas=parmas, show_otp=True)
+            return redirect(url_for('login', otp=1))
         except Exception as e:
-            return f"Failed to send OTP. Error: {e}"
+            print(f"❌ Failed to send OTP email: {e}")
+            return redirect(url_for('login', error='mail_fail'))
 
     return render_template("Login.html", parmas=parmas)
 
-@app.route('/verify_otp', methods=['GET', 'POST'])
-def verify_otp():
-    if request.method == 'POST':
-        user_otp = request.form.get('otp')
-        session_otp = session.get('otp')
+@app.route("/login", methods=["POST"])
+def login_post():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    user = Users.query.filter_by(email=email, password=password).first()
 
-        if not session_otp or not session.get('email'):
-            return "❌ Session expired. Please register again."
+    if user:
+        session['user_id'] = user.id
+        return redirect(url_for("home", success=1))
+    else:
+        return redirect(url_for("login", error=1)) 
 
-        if user_otp == session_otp:
-            try:
-                new_user = Users(
-                    name=session['name'],
-                    email=session['email'],
-                    password=session['password']
-                )
-                db.session.add(new_user)
-                db.session.commit()
-            except Exception as e:
-                return f"❌ Failed to register user: {e}"
-
-            session.clear()
-            return redirect(url_for('home'))
-        else:
-            return "❌ Invalid OTP. Please try again."
-
-    return render_template("/register")
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/home')
 def home():
-    return render_template("Home.html", parmas=parmas)
+    return render_template("Home.html", parmas=parmas, logged_in='user_id' in session)
 
 @app.route('/about')
 def about():
     stats = About.query.first()
-    return render_template("About.html", stats=stats)
-
-
+    return render_template("About.html", stats=stats, logged_in='user_id' in session)
 
 @app.route('/team')
 def team():
-    return render_template("Team.html", parmas=parmas)
+    return render_template("Team.html", parmas=parmas, logged_in='user_id' in session)
 
 @app.route("/contact", methods=['GET', 'POST'])
 def contact():
@@ -167,31 +178,12 @@ def contact():
         except Exception as e:
             print(f"Error sending email: {e}")
 
-    return render_template('contact.html', parmas=parmas)
-
-@app.route("/login", methods=["POST"])
-def login_post():
-    email = request.form.get("email")
-    password = request.form.get("password")
-    user = Users.query.filter_by(email=email, password=password).first()
-    if user:
-        session['user_id'] = user.id
-        return redirect(url_for("home"))
-    else:
-        return "❌ Invalid login credentials"@app.route("/get-template/<int:template_id>")
-
-
-# ------------------ Templates Management ------------------
+    return render_template('contact.html', parmas=parmas, logged_in='user_id' in session)
 
 @app.route("/services")
 def services():
     templates = Templates.query.all()
     return render_template("Services.html", templates=templates, parmas=parmas)
-
-@app.route('/editor')
-def editor_1():
-    template= Templates.query.all()  # ya jahan se bhi aa rahe ho
-    return render_template('Editor.html', template=template)
 
 @app.route("/all_templates")
 def all_templates():
@@ -227,6 +219,7 @@ def insert_templates():
 
     db.session.commit()
     return f"✅ Total templates inserted: {inserted}"
+
 @app.route('/save_template/<int:template_id>', methods=['POST'])
 def save_template(template_id):
     data = request.get_json()
@@ -235,7 +228,6 @@ def save_template(template_id):
     db.session.commit()
     return render_template({'status': 'success'})
 
-
 @app.route("/api/template/<int:id>")
 def get_template(id):
     template = Templates.query.get_or_404(id)
@@ -243,53 +235,62 @@ def get_template(id):
     return {
         "id": template.id,
         "name": template.name,
-        "background": bg_url,              # now it's /static/backgrounds/cert1.jpg
+        "background": bg_url,
         "json_data": template.json_data
     }
 
+# ------------------ Editor Pages (Login Required) ------------------
+
+@app.route('/editor')
+@login_required
+def editor_1():
+    template = Templates.query.all()
+    return render_template('Editor.html', template=template)
 
 @app.route('/editor/<int:id>')
+@login_required
 def editor(id):
     template = Templates.query.get_or_404(id)
     all_templates = Templates.query.all()
     return render_template("Editor.html", template=template, templates=all_templates)
-# new
 
 @app.route('/upload-template', methods=['POST'])
+@login_required
 def upload_template():
     file = request.files['template']
     save_path = os.path.join('static/generated', file.filename)
     file.save(save_path)
     return "Uploaded Successfully"
+
 @app.route('/email-template', methods=['POST'])
+@login_required
 def email_template():
     recipient = request.form['recipient']
-    file_path = request.form['file_path']  # e.g., /static/generated/certificate.png
-
+    file_path = request.form['file_path']
     abs_path = os.path.join(os.getcwd(), file_path.strip('/'))
 
     if os.path.exists(abs_path):
-        msg = Message("🎓 Your Certificate", sender=parmas['user_name'], recipients=[recipient])
-        msg.body = "Dear user,\n\nHere is your generated certificate attached."
+        try:
+            msg = Message("🎓 Your Certificate", sender=parmas['user_name'], recipients=[recipient])
+            msg.body = "Dear user,\n\nHere is your generated certificate attached."
 
-        with open(abs_path, 'rb') as f:
-            msg.attach(filename=os.path.basename(abs_path),
-                       content_type="application/octet-stream",
-                       data=f.read())
+            with open(abs_path, 'rb') as f:
+                msg.attach(filename=os.path.basename(abs_path),
+                           content_type="application/octet-stream",
+                           data=f.read())
 
-        mail.send(msg)
-        return redirect("/editor")
+            mail.send(msg)
+            return jsonify(success=True)
+        except Exception as e:
+            return jsonify(success=False, message=str(e))
     else:
-        return "❌ Certificate file not found."
-
-
-
-
+        return jsonify(success=False, message="Certificate file not found.")
 
 # ------------------ Main ------------------
 
 if __name__ == "__main__":
     app.run(debug=True, port=8050)
+
 # fainal code snippet
 
 

@@ -57,14 +57,15 @@ window.addEventListener("DOMContentLoaded", () => {
   // const templateId = 2;
   const pathParts = window.location.pathname.split("/");
   const templateId = pathParts[pathParts.length - 1];
+  const isNumeric = !isNaN(templateId);
 
-  if (templateId) {
+  if (isNumeric) {
     fetch(`/api/template/${templateId}`)
       .then((res) => res.json())
       .then((data) => {
         const template = {
-          background: data.background, // Flask returns `/static/backgrounds/xyz.jpg`
-          jsonData: data.json_data, // JSON string
+          background: data.background,
+          jsonData: data.json_data,
         };
         loadTemplateToCanvas(template);
       })
@@ -79,7 +80,6 @@ window.addEventListener("DOMContentLoaded", () => {
   // Setup all handlers and UI logic
   loadTemplates();
   setupSidebarNavigation();
-  setupElementHandlers();
   setupTextHandlers();
   setupUploadHandler();
   setupObjectActionHandlers();
@@ -203,7 +203,8 @@ const certificateTemplates = [
     thumbnail: "/static/thumbnails/thumbnail copy.png",
     background: "/static/backgrounds/bg copy.png",
     json: "/static/jsons/data copy.json",
-  },,
+  },
+  ,
   {
     id: 3,
     name: "Achievement",
@@ -314,50 +315,57 @@ function setupElementHandlers() {
 }
 
 function addShape(shape) {
+  const color = document.getElementById("shape-fill-color").value || "#000000";
   let object;
+
   switch (shape) {
     case "rect":
       object = new fabric.Rect({
         left: 300,
         top: 200,
-        fill: "#3B82F6",
+        fill: color,
         width: 120,
         height: 80,
         rx: 8,
         ry: 8,
-        stroke: "#000",
-        strokeWidth: 1,
+        stroke: null,
+        strokeWidth: 0,
       });
       break;
+
     case "circle":
       object = new fabric.Circle({
         left: 350,
         top: 250,
-        fill: "rgba(59,130,246,0.5)",
+        fill: color,
         radius: 48,
-        stroke: "#000",
-        strokeWidth: 1,
+        stroke: null,
+        strokeWidth: 0,
       });
       break;
+
     case "triangle":
       object = new fabric.Triangle({
         left: 350,
         top: 250,
-        fill: "#3B82F6",
+        fill: color,
         width: 100,
         height: 90,
-        stroke: "#000",
-        strokeWidth: 1,
+        stroke: null,
+        strokeWidth: 0,
       });
       break;
+
     case "line":
       object = new fabric.Line([0, 0, 120, 0], {
         left: 320,
         top: 320,
-        stroke: "#000",
+        stroke: color,
         strokeWidth: 4,
+        fill: null,
       });
       break;
+
     case "star":
       let points = [];
       let cx = 60,
@@ -376,14 +384,16 @@ function addShape(shape) {
       object = new fabric.Polygon(points, {
         left: 320,
         top: 220,
-        fill: "#3B82F6",
-        stroke: "#000",
-        strokeWidth: 1,
+        fill: color,
+        stroke: null,
+        strokeWidth: 0,
       });
       break;
+
     default:
       return;
   }
+
   canvas.add(object);
   canvas.setActiveObject(object);
   canvas.renderAll();
@@ -746,6 +756,12 @@ function updateFormattingToolbar() {
     textDiv.style.display = "none";
     shapeDiv.style.display = "";
     document.getElementById("shape-fill-color").value = obj.fill || "#3B82F6";
+    if (obj.type === "line") {
+      document.getElementById("shape-fill-color").value =
+        obj.stroke || "#000000";
+    } else {
+      document.getElementById("shape-fill-color").value = obj.fill || "#3B82F6";
+    }
   } else {
     textDiv.style.display = "none";
     shapeDiv.style.display = "none";
@@ -873,7 +889,11 @@ function setupFormattingToolbarHandlers() {
     .addEventListener("input", function () {
       const obj = canvas.getActiveObject();
       if (isShape(obj)) {
-        obj.set("fill", this.value);
+        if (obj.type === "line") {
+          obj.set("stroke", this.value); // Set stroke for lines
+        } else {
+          obj.set("fill", this.value); // Set fill for others
+        }
         canvas.renderAll();
       }
     });
@@ -959,7 +979,9 @@ function downloadCertificate(format) {
 
   const originalBg = canvas.backgroundColor;
   const needsWhiteBg =
-    !originalBg || originalBg === "transparent" || originalBg === "rgba(0,0,0,0)";
+    !originalBg ||
+    originalBg === "transparent" ||
+    originalBg === "rgba(0,0,0,0)";
 
   if (needsWhiteBg) {
     canvas.setBackgroundColor("white", canvas.renderAll.bind(canvas));
@@ -969,7 +991,7 @@ function downloadCertificate(format) {
   const filePath = `/static/generated/${filename}`; // Full path for Flask
 
   if (format === "png") {
-    canvas.toBlob((blob) => {
+    canvas.lowerCanvasEl.toBlob((blob) => {
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = filename;
@@ -990,7 +1012,7 @@ function downloadCertificate(format) {
           document.getElementById("filePathInput").value = filePath;
 
           // Open modal
-          openEmailModal(filename);
+          // openEmailModal(filename);
         });
     }, "image/png");
   }
@@ -1018,12 +1040,10 @@ function downloadCertificate(format) {
         document.getElementById("filePathInput").value = filePath;
 
         // Open modal
-        openEmailModal(filename);
+        // openEmailModal(filename);
       });
   }
 }
-
-
 
 // Store current view dimensions and scale
 const viewScale = 0.5;
@@ -1068,73 +1088,6 @@ canvas.getObjects().forEach((obj) => {
 canvas.lowerCanvasEl.style.height = fullHeight + "px";
 
 canvas.renderAll();
-
-// Step 2: Download
-setTimeout(() => {
-  const dataURL = canvas.toDataURL({ format: "png", quality: 1 });
-
-  if (format === "png") {
-    const link = document.createElement("a");
-    link.download = "certificate.png";
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } else if (format === "pdf") {
-    if (typeof jsPDF === "undefined") {
-      alert("Error: jsPDF library is not loaded.");
-      return;
-    }
-
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: [fullWidth, fullHeight],
-    });
-    pdf.addImage(dataURL, "PNG", 0, 0, fullWidth, fullHeight);
-    pdf.save("certificate.pdf");
-  }
-
-  // Step 3: Restore everything back to view state (0.5x)
-  canvas.setWidth(viewWidth);
-  canvas.setHeight(viewHeight);
-
-  canvas.lowerCanvasEl.style.width = viewWidth + "px";
-  canvas.lowerCanvasEl.style.height = viewHeight + "px";
-
-  if (canvas.upperCanvasEl) {
-    canvas.upperCanvasEl.style.width = viewWidth + "px";
-    canvas.upperCanvasEl.style.height = viewHeight + "px";
-  }
-
-  if (canvas.wrapperEl) {
-    canvas.wrapperEl.style.width = viewWidth + "px";
-    canvas.wrapperEl.style.height = viewHeight + "px";
-  }
-
-  // Restore background scaling
-  if (canvas.backgroundImage) {
-    canvas.backgroundImage.scaleX = viewScale;
-    canvas.backgroundImage.scaleY = viewScale;
-  }
-
-  // Scale all objects back down
-  canvas.getObjects().forEach((obj) => {
-    obj.scaleX *= viewScale;
-    obj.scaleY *= viewScale;
-    obj.left *= viewScale;
-    obj.top *= viewScale;
-    obj.setCoords();
-  });
-
-  canvas.renderAll();
-
-  // Restore transparent background if needed
-  if (needsWhiteBg) {
-    canvas.setBackgroundColor(originalBg, canvas.renderAll.bind(canvas));
-  }
-}, 100);
-
 
 // ====== Editor Title Editable ======
 function setupTitleEditable() {
@@ -1498,9 +1451,6 @@ function showFinalOptions() {
   document
     .getElementById("download-pdf-zip-btn")
     .addEventListener("click", downloadPdfZip);
-  document
-    .getElementById("share-btn")
-    .addEventListener("click", shareCertificates);
 }
 
 // Download PNG ZIP
@@ -1548,10 +1498,86 @@ async function downloadPdfZip() {
     link.click();
   });
 }
+document.getElementById("emailForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+  const statusDiv = document.getElementById("emailStatus");
+
+  statusDiv.innerHTML = `
+    <div class="spinner" style="
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display:inline-block;
+      margin-right:10px;"></div> Sending email...
+  `;
+
+  fetch("/email-template", {
+    method: "POST",
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        statusDiv.innerHTML = "✅ Email sent successfully!";
+      } else {
+        statusDiv.innerHTML = "❌ Error: " + data.message;
+      }
+    })
+    .catch((err) => {
+      statusDiv.innerHTML = "❌ Something went wrong.";
+      console.error(err);
+    });
+});
 
 // Placeholder Share Button
 function shareCertificates() {
-  alert("🔗 Share feature coming soon!");
+  canvas.lowerCanvasEl.toBlob((blob) => {
+    const filename = "shared_certificate.png";
+    const filePath = `/static/generated/${filename}`;
+    const formData = new FormData();
+    formData.append("template", blob, filename);
+
+    const statusDiv = document.getElementById("emailStatus");
+    if (statusDiv) {
+      statusDiv.innerHTML = `
+        <div class="spinner" style="
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #3498db;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          animation: spin 1s linear infinite;
+          display:inline-block;
+          margin-right:10px;"></div> Preparing certificate...
+      `;
+    }
+
+    fetch("/upload-template", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.text())
+      .then((msg) => {
+        console.log("📤 Uploaded for sharing:", msg);
+        document.getElementById("filePathInput").value = filePath;
+
+        // ✅ CLEAR statusDiv when done preparing
+        if (statusDiv) statusDiv.innerHTML = "";
+
+        // ✅ THEN open modal
+        openEmailModal();
+      })
+      .catch((err) => {
+        console.error("❌ Upload failed", err);
+        if (statusDiv) statusDiv.innerHTML = "❌ Failed to upload certificate.";
+      });
+  }, "image/png");
 }
 
 //Preview Button Logic
@@ -1576,6 +1602,10 @@ document.getElementById("preview-btn").addEventListener("click", () => {
     alert("Popup blocked! Please allow popups for this website.");
   }
 });
+
+document
+  .getElementById("share-btn")
+  .addEventListener("click", shareCertificates);
 
 // ====== Initialization ======
 function init() {

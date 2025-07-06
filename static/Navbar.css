@@ -75,7 +75,6 @@
   position: relative;
 }
 .notif-container {
-  display: none;
   align-items: center;
 }
 .notif-btn {
